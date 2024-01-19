@@ -3,8 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-      "export": "bun run src/scripts/export.ts",
-      "search": "bun run src/scripts/search.ts"
+    "export": "bun run src/scripts/export.ts",
+    "search": "bun run src/scripts/search.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -18,7 +18,10 @@
     "@types/unist": "^3.0.2",
     "dotenv": "^16.3.1",
     "mdast-builder": "^1.1.1",
+    "mdast-util-math": "^3.0.0",
+    "remark-math": "^6.0.0",
     "remark-stringify": "^11.0.0",
-    "unified": "^11.0.4"
+    "unified": "^11.0.4",
+    "unist-builder": "^4.0.0"
   }
 }

@@ -1,9 +1,12 @@
 import { Client } from "@notionhq/client";
 import builder from "mdast-builder"
+import { u as unistBuilder } from 'unist-builder'
 import type {
+    EquationRichTextItemResponse,
     GetBlockResponse,
     ParagraphBlockObjectResponse,
-    RichTextItemResponse
+    RichTextItemResponse,
+    TextRichTextItemResponse
 } from "@notionhq/client/build/src/api-endpoints";
 import { getTitle } from "./metadata";
 
@@ -78,5 +81,44 @@ function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
 }
 
 export function translateRichText(richTextResponse: RichTextItemResponse) {
-    return builder.text(richTextResponse.plain_text)
+    switch (richTextResponse.type) {
+        case "text":
+            return translateTextRichText(richTextResponse)
+        case "equation":
+            return translateEquationRichText(richTextResponse)
+        case "mention":
+            return translateAnyRichText(richTextResponse)
+    }
+}
+
+function translateTextRichText(textRichTextResponse: TextRichTextItemResponse) {
+
+    let link = textRichTextResponse.text.link
+    let text = translateAnyRichText(textRichTextResponse)
+
+    if (!link) {
+        return text
+    }
+
+    return builder.link(link.url, undefined, text)
+}
+
+function translateEquationRichText(equationRichTextResponse: EquationRichTextItemResponse) {
+    return unistBuilder("inlineMath", {}, equationRichTextResponse.equation.expression)
+}
+
+function translateAnyRichText(AnyRichTextResponse: RichTextItemResponse) {
+    if (AnyRichTextResponse.annotations.code) {
+        return builder.inlineCode(AnyRichTextResponse.plain_text)
+    }
+
+    let text = builder.text(AnyRichTextResponse.plain_text)
+    if (AnyRichTextResponse.annotations.bold) {
+        text = builder.strong(text)
+    }
+    if (AnyRichTextResponse.annotations.italic) {
+        text = builder.emphasis(text)
+    }
+
+    return text
 }
