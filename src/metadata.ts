@@ -1,11 +1,12 @@
 import type { GetPageResponse } from "@notionhq/client/build/src/api-endpoints";
 import { translateRichText } from "./translate";
+import { isFullPage } from "@notionhq/client";
 
 export function getTitle(pageResponse: GetPageResponse) {
-    if (!("properties" in pageResponse)) {
-        return;
+    if (!isFullPage(pageResponse)) {
+        return
     }
-    const properties = pageResponse.properties;
+    const properties = pageResponse.properties
 
     if (!("title" in properties)) {
         return;

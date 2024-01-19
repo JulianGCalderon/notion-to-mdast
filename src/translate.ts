@@ -1,4 +1,4 @@
-import { Client } from "@notionhq/client";
+import { Client, isFullBlock, iteratePaginatedAPI } from "@notionhq/client";
 import builder from "mdast-builder"
 import { u as unistBuilder } from 'unist-builder'
 import type {
@@ -29,36 +29,22 @@ export async function translatePage(pageId: string) {
 }
 
 async function translateChildren(blockId: string) {
-    const children = await getChildren(blockId);
+    const children = iteratePaginatedAPI(
+        notionClient.blocks.children.list,
+        { block_id: blockId }
+    )
 
-    return await Promise.all(children.map(async (blockResponse) => {
-        return await translateBlock(blockResponse)
-    }));
-}
+    const promises = []
+    for await (const blockResponse of children) {
+        promises.push(translateBlock(blockResponse))
+    }
 
-async function getChildren(blockId: string): Promise<GetBlockResponse[]> {
-    let children = [];
-
-    let has_more
-    let next_cursor = undefined
-    do {
-        const response = await notionClient.blocks.children.list({
-            block_id: blockId,
-            start_cursor: next_cursor,
-        });
-
-        children.push(...response.results);
-
-        has_more = response.has_more
-        next_cursor = response.next_cursor || undefined
-    } while (has_more)
-
-    return children
+    return await Promise.all(promises)
 }
 
 async function translateBlock(blockResponse: GetBlockResponse) {
-    if (!("type" in blockResponse)) {
-        return errorNode("No type")
+    if (!isFullBlock(blockResponse)) {
+        return errorNode("No Full Block Response")
     }
 
     switch (blockResponse.type) {
@@ -93,9 +79,9 @@ export function translateRichText(richTextResponse: RichTextItemResponse) {
 
 function translateTextRichText(textRichTextResponse: TextRichTextItemResponse) {
 
-    let link = textRichTextResponse.text.link
     let text = translateAnyRichText(textRichTextResponse)
 
+    let link = textRichTextResponse.text.link
     if (!link) {
         return text
     }
