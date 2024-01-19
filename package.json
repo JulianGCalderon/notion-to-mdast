@@ -2,6 +2,10 @@
   "name": "notion-to-obsidian",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+      "export": "bun run src/scripts/export.ts",
+      "search": "bun run src/scripts/search.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

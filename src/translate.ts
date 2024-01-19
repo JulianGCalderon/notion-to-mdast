@@ -1,6 +1,10 @@
 import { Client } from "@notionhq/client";
-import type { GetBlockResponse, ParagraphBlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
 import builder from "mdast-builder"
+import type {
+    GetBlockResponse,
+    ParagraphBlockObjectResponse,
+    RichTextItemResponse
+} from "@notionhq/client/build/src/api-endpoints";
 
 const notionClient = new Client({
     auth: process.env.NOTION_API_KEY,
@@ -16,8 +20,7 @@ async function translateChildren(blockId: string) {
     const children = await getChildren(blockId);
 
     return await Promise.all(children.map(async (blockResponse) => {
-        const blockNode = await translateBlock(blockResponse)
-        return blockNode
+        return await translateBlock(blockResponse)
     }));
 }
 
