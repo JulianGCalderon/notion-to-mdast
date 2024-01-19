@@ -40,7 +40,7 @@ bun run index.ts
     - [ ] Headings
     - [ ] Code block
     - [ ] Math block
-    - ...
+    - [ ] ...
 - [ ] Single page to file
 - [ ] Nested pages support
 
