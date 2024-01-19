@@ -4,6 +4,9 @@ import { u as unistBuilder } from 'unist-builder'
 import type {
     EquationRichTextItemResponse,
     GetBlockResponse,
+    Heading1BlockObjectResponse,
+    Heading2BlockObjectResponse,
+    Heading3BlockObjectResponse,
     ParagraphBlockObjectResponse,
     RichTextItemResponse,
     TextRichTextItemResponse
@@ -60,6 +63,13 @@ async function translateBlock(blockResponse: GetBlockResponse) {
     switch (blockResponse.type) {
         case "paragraph":
             return translateParagraph(blockResponse)
+        // I was not able to merge the following three cases in typescript
+        case "heading_1":
+            return translateHeading1(blockResponse)
+        case "heading_2":
+            return translateHeading2(blockResponse)
+        case "heading_3":
+            return translateHeading3(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
@@ -67,9 +77,41 @@ async function translateBlock(blockResponse: GetBlockResponse) {
 }
 
 function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
-    const phrasingContent = paragraphResponse.paragraph.rich_text.map(translateRichText)
+    const phrasingContent = paragraphResponse
+        .paragraph
+        .rich_text
+        .map(translateRichText)
 
     return builder.paragraph(phrasingContent)
+}
+
+function translateHeading1(headingResponse: Heading1BlockObjectResponse) {
+    const phrasingContent = headingResponse
+        .heading_1
+        .rich_text
+        .map(translateRichText)
+
+    // The heading depth is increased, so that the title of the page can have a
+    // depth of 1, while the contained headings have a higher depth.
+    return builder.heading(2, phrasingContent)
+}
+
+function translateHeading2(headingResponse: Heading2BlockObjectResponse) {
+    const phrasingContent = headingResponse
+        .heading_2
+        .rich_text
+        .map(translateRichText)
+
+    return builder.heading(3, phrasingContent)
+}
+
+function translateHeading3(headingResponse: Heading3BlockObjectResponse) {
+    const phrasingContent = headingResponse
+        .heading_3
+        .rich_text
+        .map(translateRichText)
+
+    return builder.heading(4, phrasingContent)
 }
 
 export function translateRichText(richTextResponse: RichTextItemResponse) {
