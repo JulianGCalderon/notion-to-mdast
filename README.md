@@ -35,12 +35,12 @@ bun run index.ts
 
 ## Roadmap
 
-- [] Single page to stdout
-    - [] Paragraphs
-    - [] Headings
-    - [] Code block
-    - [] Math block
-    - [] ...
-- [] Single page to file
-- [] Nested pages support
+- [ ] Single page to stdout
+    - [ ] Paragraphs
+    - [ ] Headings
+    - [ ] Code block
+    - [ ] Math block
+    - ...
+- [ ] Single page to file
+- [ ] Nested pages support
 
