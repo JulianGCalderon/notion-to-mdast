@@ -29,35 +29,41 @@ export async function translatePage(pageId: string) {
 }
 
 async function translateChildren(blockId: string) {
-    const children = iteratePaginatedAPI(
+    const childrenResponses = iteratePaginatedAPI(
         notionClient.blocks.children.list,
         { block_id: blockId }
     )
 
     const promises = []
-    for await (const blockResponse of children) {
+    for await (const blockResponse of childrenResponses) {
         promises.push(translateBlock(blockResponse))
     }
 
-    return await Promise.all(promises)
+    // If i use `filter` method, typescript does not detect the impossibility
+    // of an undefined.
+    const childrenNodes = []
+    for (const childrenNode of await Promise.all(promises)) {
+        if (childrenNode) {
+            childrenNodes.push(childrenNode)
+        }
+    }
+
+    return childrenNodes
 }
 
 async function translateBlock(blockResponse: GetBlockResponse) {
     if (!isFullBlock(blockResponse)) {
-        return errorNode("No Full Block Response")
+        console.error("No Full Block Response")
+        return
     }
 
     switch (blockResponse.type) {
         case "paragraph":
             return translateParagraph(blockResponse)
         default:
-            return errorNode(`Unknown Type: ${blockResponse.type}`)
+            console.error(`Unknown Type: ${blockResponse.type}`)
     }
 
-}
-
-function errorNode(msg: string) {
-    return builder.paragraph(builder.text("ERROR: " + msg))
 }
 
 function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
