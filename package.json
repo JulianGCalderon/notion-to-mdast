@@ -10,6 +10,11 @@
   },
   "dependencies": {
     "@notionhq/client": "^2.2.14",
-    "dotenv": "^16.3.1"
+    "@types/mdast": "^4.0.3",
+    "@types/unist": "^3.0.2",
+    "dotenv": "^16.3.1",
+    "mdast-builder": "^1.1.1",
+    "remark-stringify": "^11.0.0",
+    "unified": "^11.0.4"
   }
 }
