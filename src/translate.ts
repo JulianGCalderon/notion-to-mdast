@@ -42,7 +42,7 @@ async function translateChildren(blockId: string) {
         promises.push(translateBlock(blockResponse))
     }
 
-    // If i use `filter` method, typescript does not detect the impossibility
+    // If I use `filter` method, typescript does not detect the impossibility
     // of an undefined.
     const childrenNodes = []
     for (const childrenNode of await Promise.all(promises)) {
