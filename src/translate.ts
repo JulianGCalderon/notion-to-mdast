@@ -5,15 +5,24 @@ import type {
     ParagraphBlockObjectResponse,
     RichTextItemResponse
 } from "@notionhq/client/build/src/api-endpoints";
+import { getTitle } from "./metadata";
 
 const notionClient = new Client({
     auth: process.env.NOTION_API_KEY,
 });
 
 export async function translatePage(pageId: string) {
+    const pageResponse = await notionClient.pages.retrieve({
+        page_id: pageId
+    })
     const children = await translateChildren(pageId)
 
-    return builder.root(children)
+    const title = getTitle(pageResponse)
+    if (title) {
+        return builder.rootWithTitle(1, title, children)
+    } else {
+        return builder.root(children)
+    }
 }
 
 async function translateChildren(blockId: string) {
@@ -59,13 +68,7 @@ async function translateBlock(blockResponse: GetBlockResponse) {
 }
 
 function errorNode(msg: string) {
-    return builder.paragraph([
-        builder.strong(
-            builder.text("ERROR:")
-        ),
-        builder.text(" " + msg)
-    ]
-    )
+    return builder.paragraph(builder.text("ERROR: " + msg))
 }
 
 function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
@@ -74,6 +77,6 @@ function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
     return builder.paragraph(phrasingContent)
 }
 
-function translateRichText(richTextResponse: RichTextItemResponse) {
+export function translateRichText(richTextResponse: RichTextItemResponse) {
     return builder.text(richTextResponse.plain_text)
 }
