@@ -8,15 +8,12 @@ const notionClient = new Client({
 
 const query = process.argv[2] || "";
 
-(async () => {
-    const response = await notionClient.search({
-        query: query,
-        filter: {
-            value: "page",
-            property: "object"
-        }
-    });
+const response = await notionClient.search({
+    query: query,
+    filter: {
+        value: "page",
+        property: "object"
+    }
+});
 
-    console.log(response)
-})();
-
+console.log(response)
