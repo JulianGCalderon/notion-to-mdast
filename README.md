@@ -37,7 +37,7 @@ bun run index.ts
 
 - [ ] Single page to stdout
     - [x] Paragraphs
-    - [ ] Headings
+    - [x] Headings
     - [ ] Code block
     - [ ] Math block
     - [ ] ...
