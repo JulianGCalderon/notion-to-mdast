@@ -1,20 +1,18 @@
 import { Client } from "@notionhq/client";
-import type { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
-import type { Node, Root } from "mdast";
+import type { GetBlockResponse, ParagraphBlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints";
 import builder from "mdast-builder"
 
 const notionClient = new Client({
     auth: process.env.NOTION_API_KEY,
 });
 
-export async function translatePage(pageId: string): Promise<Root> {
+export async function translatePage(pageId: string) {
     const children = await translateChildren(pageId)
 
-    // @ts-ignore
     return builder.root(children)
 }
 
-async function translateChildren(blockId: string): Promise<Node[]> {
+async function translateChildren(blockId: string) {
     const children = await getChildren(blockId);
 
     return await Promise.all(children.map(async (blockResponse) => {
@@ -43,6 +41,36 @@ async function getChildren(blockId: string): Promise<GetBlockResponse[]> {
     return children
 }
 
-async function translateBlock(blockResponse: GetBlockResponse): Promise<Node> {
-    return builder.paragraph()
+async function translateBlock(blockResponse: GetBlockResponse) {
+    if (!("type" in blockResponse)) {
+        return errorNode("No type")
+    }
+
+    switch (blockResponse.type) {
+        case "paragraph":
+            return translateParagraph(blockResponse)
+        default:
+            return errorNode(`Unknown Type: ${blockResponse.type}`)
+    }
+
+}
+
+function errorNode(msg: string) {
+    return builder.paragraph([
+        builder.strong(
+            builder.text("ERROR:")
+        ),
+        builder.text(" " + msg)
+    ]
+    )
+}
+
+function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
+    const phrasingContent = paragraphResponse.paragraph.rich_text.map(translateRichText)
+
+    return builder.paragraph(phrasingContent)
+}
+
+function translateRichText(richTextResponse: RichTextItemResponse) {
+    return builder.text(richTextResponse.plain_text)
 }
