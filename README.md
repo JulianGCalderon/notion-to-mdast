@@ -36,7 +36,7 @@ bun run index.ts
 ## Roadmap
 
 - [ ] Single page to stdout
-    - [ ] Paragraphs
+    - [x] Paragraphs
     - [ ] Headings
     - [ ] Code block
     - [ ] Math block
