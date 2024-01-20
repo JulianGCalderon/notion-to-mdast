@@ -36,31 +36,31 @@ bun run index.ts
 ## Roadmap
 
 - [ ] Single page to stdout
-    - [ ] Bulleted list item
-    - [ ] Callout
-    - [ ] Child page
-    - [x] Code
-    - [ ] Column list and column
-    - [ ] Divider
-    - [ ] Embed
-    - [x] Equation
-    - [ ] File
-    - [x] Headings
-    - [ ] Image
-    - [ ] Link Preview
-    - [x] Mention
-    - [ ] Numbered list item
     - [x] Paragraph
-    - [ ] PDF
+    - [x] Mention
+    - [x] Headings
+    - [x] Equation
+    - [x] Code
     - [x] Quote
-    - [ ] Synced block
     - [ ] Table
-    - [ ] To do
-    - [ ] Toggle blocks
+    - [ ] Callout (with ofm)
+    - [ ] Image
     - [ ] Video
+    - [ ] PDF
+    - [ ] File
+    - [ ] Embed
+    - [ ] Link Preview
+    - [ ] Synced block (as container)
+    - [ ] Toggle blocks (as container)
+    - [ ] Column list and column (as container)
+    - [ ] Numbered list item
+    - [ ] Bulleted list item
+    - [ ] To do (with gfm)
+    - [ ] Child page
     - ~~Bookmark~~
     - ~~Breadcrumb~~
     - ~~Child database~~
+    - ~~Divider~~
     - ~~Table of contents~~
     - ~~Template~~
 - [ ] Single page to file

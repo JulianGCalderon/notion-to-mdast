@@ -1,8 +1,10 @@
 import { Client, isFullBlock, iteratePaginatedAPI } from "@notionhq/client";
-import builder, { text } from "mdast-builder"
+import builder, { list, text } from "mdast-builder"
 import { u as unistBuilder } from 'unist-builder'
 import type {
+    BulletedListItemBlockObjectResponse,
     CodeBlockObjectResponse,
+    DividerBlockObjectResponse,
     EquationBlockObjectResponse,
     EquationRichTextItemResponse,
     GetBlockResponse,
@@ -12,7 +14,8 @@ import type {
     ParagraphBlockObjectResponse,
     QuoteBlockObjectResponse,
     RichTextItemResponse,
-    TextRichTextItemResponse
+    TextRichTextItemResponse,
+    ToDoBlockObjectResponse
 } from "@notionhq/client/build/src/api-endpoints";
 import { getTitle } from "./metadata";
 
@@ -82,7 +85,6 @@ async function translateBlock(blockResponse: GetBlockResponse) {
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
-
 }
 
 function translateCode(codeResponse: CodeBlockObjectResponse) {
