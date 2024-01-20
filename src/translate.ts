@@ -102,10 +102,10 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateFile(blockResponse)
         case "embed":
             return translateEmbed(blockResponse)
-        case "bookmark":
-            return translateBookmark(blockResponse)
-        case "link_preview":
-            return translateLinkPreview(blockResponse)
+        // case "bookmark":
+        //     return translateBookmark(blockResponse)
+        // case "link_preview":
+        //     return translateLinkPreview(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
@@ -151,9 +151,17 @@ function translateFile(fileResponse: FileBlockObjectResponse) {
     return builder.paragraph(builder.link(url, caption))
 }
 
-function translateEmbed(embedResponse: EmbedBlockObjectResponse) { }
-function translateBookmark(bookmarkResponse: BookmarkBlockObjectResponse) { }
-function translateLinkPreview(linkPreviewResponse: LinkPreviewBlockObjectResponse) { }
+function translateEmbed(embedResponse: EmbedBlockObjectResponse) {
+    const embed = embedResponse.embed
+
+    const url = embed.url
+
+    const caption = textFromRichTextArray(embed.caption)
+    return builder.paragraph(builder.image(url, caption, caption))
+}
+
+// function translateBookmark(bookmarkResponse: BookmarkBlockObjectResponse) { }
+// function translateLinkPreview(linkPreviewResponse: LinkPreviewBlockObjectResponse) { }
 
 function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
     const phrasingContent = paragraphResponse
