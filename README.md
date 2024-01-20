@@ -36,11 +36,8 @@ bun run index.ts
 ## Roadmap
 
 - [ ] Single page to stdout
-    - [ ] ~~Bookmark~~
-    - [ ] ~~Breadcrumb~~
     - [ ] Bulleted list item
     - [ ] Callout
-    - [ ] ~~Child database~~
     - [ ] Child page
     - [x] Code
     - [ ] Column list and column
@@ -55,14 +52,17 @@ bun run index.ts
     - [ ] Numbered list item
     - [x] Paragraph
     - [ ] PDF
-    - [ ] Quote
+    - [x] Quote
     - [ ] Synced block
     - [ ] Table
-    - [ ] ~~Table of contents~~
-    - [ ] ~~Template~~
     - [ ] To do
     - [ ] Toggle blocks
     - [ ] Video
+    - ~~Bookmark~~
+    - ~~Breadcrumb~~
+    - ~~Child database~~
+    - ~~Table of contents~~
+    - ~~Template~~
 - [ ] Single page to file
 - [ ] Nested pages support
 

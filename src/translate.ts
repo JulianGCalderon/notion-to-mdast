@@ -10,6 +10,7 @@ import type {
     Heading2BlockObjectResponse,
     Heading3BlockObjectResponse,
     ParagraphBlockObjectResponse,
+    QuoteBlockObjectResponse,
     RichTextItemResponse,
     TextRichTextItemResponse
 } from "@notionhq/client/build/src/api-endpoints";
@@ -63,8 +64,10 @@ async function translateBlock(blockResponse: GetBlockResponse) {
     }
 
     switch (blockResponse.type) {
-        case "paragraph":
-            return translateParagraph(blockResponse)
+        case "code":
+            return translateCode(blockResponse)
+        case "equation":
+            return translateEquation(blockResponse)
         // I was not able to merge the following three cases in typescript
         case "heading_1":
             return translateHeading1(blockResponse)
@@ -72,23 +75,27 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateHeading2(blockResponse)
         case "heading_3":
             return translateHeading3(blockResponse)
-        case "code":
-            return translateCode(blockResponse)
-        case "equation":
-            return translateEquation(blockResponse)
+        case "paragraph":
+            return translateParagraph(blockResponse)
+        case "quote":
+            return translateQuote(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
 
 }
 
-function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
-    const phrasingContent = paragraphResponse
-        .paragraph
-        .rich_text
-        .map(translateRichText)
+function translateCode(codeResponse: CodeBlockObjectResponse) {
+    console.error(codeResponse.code.rich_text)
 
-    return builder.paragraph(phrasingContent)
+    const language = codeResponse.code.language
+    const text = textFromRichTextArray(codeResponse.code.rich_text)
+
+    return builder.code(language, text)
+}
+
+function translateEquation(blockResponse: EquationBlockObjectResponse) {
+    return unistBuilder("math", blockResponse.equation.expression)
 }
 
 function translateHeading1(headingResponse: Heading1BlockObjectResponse) {
@@ -120,18 +127,25 @@ function translateHeading3(headingResponse: Heading3BlockObjectResponse) {
     return builder.heading(4, phrasingContent)
 }
 
-function translateCode(codeResponse: CodeBlockObjectResponse) {
-    console.error(codeResponse.code.rich_text)
+function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
+    const phrasingContent = paragraphResponse
+        .paragraph
+        .rich_text
+        .map(translateRichText)
 
-    const language = codeResponse.code.language
-    const text = textFromRichTextArray(codeResponse.code.rich_text)
-
-    return builder.code(language, text)
+    return builder.paragraph(phrasingContent)
 }
 
-function translateEquation(blockResponse: EquationBlockObjectResponse) {
-    return unistBuilder("math", blockResponse.equation.expression)
+async function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
+    const phrasingContent = quoteResponse
+        .quote
+        .rich_text
+        .map(translateRichText)
+
+    return builder.blockquote(phrasingContent)
 }
+
+// RICH TEXT SUPPORT
 
 function textFromRichTextArray(richTextResponseArray: RichTextItemResponse[]) {
     return richTextResponseArray.map((richTextResponse) => richTextResponse.plain_text).join("")
