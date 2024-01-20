@@ -48,6 +48,7 @@ bun run index.ts
     - [ ] PDF
     - [ ] File
     - [ ] Embed
+    - [ ] Bookmark
     - [ ] Link Preview
     - [ ] Synced block (as container)
     - [ ] Toggle blocks (as container)
@@ -57,7 +58,6 @@ bun run index.ts
     - [ ] Bulleted list item
     - [ ] To do (with gfm)
     - [ ] Child page
-    - ~~Bookmark~~
     - ~~Breadcrumb~~
     - ~~Child database~~
     - ~~Divider~~
