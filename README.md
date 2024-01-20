@@ -47,7 +47,7 @@ bun run index.ts
     - [x] Video
     - [x] PDF
     - [x] File
-    - [ ] Embed
+    - [x] Embed
     - [ ] Bookmark
     - [ ] Link Preview
     - [ ] Synced block (as container)
