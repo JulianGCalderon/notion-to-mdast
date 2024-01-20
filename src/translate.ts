@@ -82,22 +82,21 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateQuote(blockResponse)
         case "equation":
             return translateEquation(blockResponse)
+        case "table":
+            return translateTable(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
 }
 
-function translateCode(codeResponse: CodeBlockObjectResponse) {
-    console.error(codeResponse.code.rich_text)
 
-    const language = codeResponse.code.language
-    const text = textFromRichTextArray(codeResponse.code.rich_text)
+function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
+    const phrasingContent = paragraphResponse
+        .paragraph
+        .rich_text
+        .map(translateRichText)
 
-    return builder.code(language, text)
-}
-
-function translateEquation(blockResponse: EquationBlockObjectResponse) {
-    return unistBuilder("math", blockResponse.equation.expression)
+    return builder.paragraph(phrasingContent)
 }
 
 function translateHeading1(headingResponse: Heading1BlockObjectResponse) {
@@ -129,16 +128,16 @@ function translateHeading3(headingResponse: Heading3BlockObjectResponse) {
     return builder.heading(4, phrasingContent)
 }
 
-function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
-    const phrasingContent = paragraphResponse
-        .paragraph
-        .rich_text
-        .map(translateRichText)
+function translateCode(codeResponse: CodeBlockObjectResponse) {
+    console.error(codeResponse.code.rich_text)
 
-    return builder.paragraph(phrasingContent)
+    const language = codeResponse.code.language
+    const text = textFromRichTextArray(codeResponse.code.rich_text)
+
+    return builder.code(language, text)
 }
 
-async function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
+function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
     const phrasingContent = quoteResponse
         .quote
         .rich_text
@@ -146,6 +145,13 @@ async function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
 
     return builder.blockquote(phrasingContent)
 }
+
+function translateEquation(blockResponse: EquationBlockObjectResponse) {
+    return unistBuilder("math", blockResponse.equation.expression)
+}
+
+
+
 
 // RICH TEXT SUPPORT
 
