@@ -43,6 +43,13 @@ bun run index.ts
     - [x] Quote
     - [x] Equation
     - [x] Table
+    - [ ] Callout (with ofm)
+    - [ ] Synced block (as container)
+    - [ ] Toggle blocks (as container)
+    - [ ] Column list and column (as container)
+    - [ ] Numbered list item
+    - [ ] Bulleted list item
+    - [ ] To do (with gfm)
     - [x] Image
     - [x] Video
     - [x] PDF
@@ -50,13 +57,6 @@ bun run index.ts
     - [x] Embed
     - [x] Bookmark
     - [x] Link Preview
-    - [ ] Synced block (as container)
-    - [ ] Toggle blocks (as container)
-    - [ ] Column list and column (as container)
-    - [ ] Callout (with ofm)
-    - [ ] Numbered list item
-    - [ ] Bulleted list item
-    - [ ] To do (with gfm)
     - [ ] Child page
     - ~~Breadcrumb~~
     - ~~Child database~~
