@@ -1,10 +1,8 @@
 import { Client, isFullBlock, iteratePaginatedAPI } from "@notionhq/client";
-import builder, { list, text } from "mdast-builder"
+import builder from "mdast-builder"
 import { u as unistBuilder } from 'unist-builder'
 import type {
-    BulletedListItemBlockObjectResponse,
     CodeBlockObjectResponse,
-    DividerBlockObjectResponse,
     EquationBlockObjectResponse,
     EquationRichTextItemResponse,
     GetBlockResponse,
@@ -17,7 +15,6 @@ import type {
     TableBlockObjectResponse,
     TableRowBlockObjectResponse,
     TextRichTextItemResponse,
-    ToDoBlockObjectResponse
 } from "@notionhq/client/build/src/api-endpoints";
 import { getTitle } from "./metadata";
 
@@ -71,7 +68,7 @@ async function translateBlock(blockResponse: GetBlockResponse) {
     switch (blockResponse.type) {
         case "paragraph":
             return translateParagraph(blockResponse)
-        // I was not able to merge the following three cases in typescript
+        // Could not merge the three heading cases without type errors
         case "heading_1":
             return translateHeading1(blockResponse)
         case "heading_2":
@@ -213,6 +210,9 @@ function translateAnyRichText(anyRichTextResponse: RichTextItemResponse) {
     }
     if (anyRichTextResponse.annotations.italic) {
         text = builder.emphasis(text)
+    }
+    if (anyRichTextResponse.annotations.strikethrough) {
+        text = unistBuilder("delete", {}, [text])
     }
 
     return text

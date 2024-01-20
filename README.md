@@ -49,10 +49,10 @@ bun run index.ts
     - [ ] File
     - [ ] Embed
     - [ ] Link Preview
-    - [ ] Callout (with ofm)
     - [ ] Synced block (as container)
     - [ ] Toggle blocks (as container)
     - [ ] Column list and column (as container)
+    - [ ] Callout (with ofm)
     - [ ] Numbered list item
     - [ ] Bulleted list item
     - [ ] To do (with gfm)
@@ -65,5 +65,3 @@ bun run index.ts
     - ~~Template~~
 - [ ] Single page to file
 - [ ] Nested pages support
-
-
