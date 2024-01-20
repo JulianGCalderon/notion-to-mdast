@@ -67,10 +67,8 @@ async function translateBlock(blockResponse: GetBlockResponse) {
     }
 
     switch (blockResponse.type) {
-        case "code":
-            return translateCode(blockResponse)
-        case "equation":
-            return translateEquation(blockResponse)
+        case "paragraph":
+            return translateParagraph(blockResponse)
         // I was not able to merge the following three cases in typescript
         case "heading_1":
             return translateHeading1(blockResponse)
@@ -78,10 +76,12 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateHeading2(blockResponse)
         case "heading_3":
             return translateHeading3(blockResponse)
-        case "paragraph":
-            return translateParagraph(blockResponse)
+        case "code":
+            return translateCode(blockResponse)
         case "quote":
             return translateQuote(blockResponse)
+        case "equation":
+            return translateEquation(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }

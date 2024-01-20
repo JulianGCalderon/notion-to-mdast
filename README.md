@@ -39,9 +39,9 @@ bun run index.ts
     - [x] Paragraph
     - [x] Mention
     - [x] Headings
-    - [x] Equation
     - [x] Code
     - [x] Quote
+    - [x] Equation
     - [ ] Table
     - [ ] Callout (with ofm)
     - [ ] Image
