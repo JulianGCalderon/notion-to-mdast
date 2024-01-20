@@ -1,20 +1,27 @@
 import { Client, isFullBlock, iteratePaginatedAPI } from "@notionhq/client";
-import builder from "mdast-builder"
+import builder, { image } from "mdast-builder"
 import { u as unistBuilder } from 'unist-builder'
 import type {
+    BookmarkBlockObjectResponse,
     CodeBlockObjectResponse,
+    EmbedBlockObjectResponse,
     EquationBlockObjectResponse,
     EquationRichTextItemResponse,
+    FileBlockObjectResponse,
     GetBlockResponse,
     Heading1BlockObjectResponse,
     Heading2BlockObjectResponse,
     Heading3BlockObjectResponse,
+    ImageBlockObjectResponse,
+    LinkPreviewBlockObjectResponse,
     ParagraphBlockObjectResponse,
+    PdfBlockObjectResponse,
     QuoteBlockObjectResponse,
     RichTextItemResponse,
     TableBlockObjectResponse,
     TableRowBlockObjectResponse,
     TextRichTextItemResponse,
+    VideoBlockObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { getTitle } from "./metadata";
 
@@ -85,11 +92,68 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateTable(blockResponse)
         case "table_row":
             return translateTableRow(blockResponse)
+        case "image":
+            return translateImage(blockResponse)
+        case "video":
+            return translateVideo(blockResponse)
+        case "pdf":
+            return translatePdf(blockResponse)
+        case "file":
+            return translateFile(blockResponse)
+        case "embed":
+            return translateEmbed(blockResponse)
+        case "bookmark":
+            return translateBookmark(blockResponse)
+        case "link_preview":
+            return translateLinkPreview(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
 }
 
+function translateImage(imageResponse: ImageBlockObjectResponse) {
+    const image = imageResponse.image
+
+    //@ts-ignore
+    const url = image[image.type].url
+
+    const caption = textFromRichTextArray(image.caption)
+    return builder.paragraph(builder.image(url, caption, caption))
+}
+
+function translateVideo(videoResponse: VideoBlockObjectResponse) {
+    const video = videoResponse.video
+
+    //@ts-ignore
+    const url = video[video.type].url
+
+    const caption = textFromRichTextArray(video.caption)
+    return builder.paragraph(builder.image(url, caption))
+}
+
+function translatePdf(pdfResponse: PdfBlockObjectResponse) {
+    const pdf = pdfResponse.pdf
+
+    //@ts-ignore
+    const url = pdf[pdf.type].url
+
+    const caption = textFromRichTextArray(pdf.caption)
+    return builder.paragraph(builder.image(url, caption))
+}
+
+function translateFile(fileResponse: FileBlockObjectResponse) {
+    const file = fileResponse.file
+
+    //@ts-ignore
+    const url = file[file.type].url
+
+    const caption = textFromRichTextArray(file.caption)
+    return builder.paragraph(builder.link(url, caption))
+}
+
+function translateEmbed(embedResponse: EmbedBlockObjectResponse) { }
+function translateBookmark(bookmarkResponse: BookmarkBlockObjectResponse) { }
+function translateLinkPreview(linkPreviewResponse: LinkPreviewBlockObjectResponse) { }
 
 function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
     const phrasingContent = paragraphResponse

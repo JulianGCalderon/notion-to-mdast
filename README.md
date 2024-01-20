@@ -43,10 +43,10 @@ bun run index.ts
     - [x] Quote
     - [x] Equation
     - [x] Table
-    - [ ] Image
-    - [ ] Video
-    - [ ] PDF
-    - [ ] File
+    - [x] Image
+    - [x] Video
+    - [x] PDF
+    - [x] File
     - [ ] Embed
     - [ ] Bookmark
     - [ ] Link Preview
