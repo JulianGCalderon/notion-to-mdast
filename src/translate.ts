@@ -3,6 +3,7 @@ import builder, { text } from "mdast-builder"
 import { u as unistBuilder } from 'unist-builder'
 import type {
     CodeBlockObjectResponse,
+    EquationBlockObjectResponse,
     EquationRichTextItemResponse,
     GetBlockResponse,
     Heading1BlockObjectResponse,
@@ -73,6 +74,8 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateHeading3(blockResponse)
         case "code":
             return translateCode(blockResponse)
+        case "equation":
+            return translateEquation(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
@@ -126,6 +129,10 @@ function translateCode(codeResponse: CodeBlockObjectResponse) {
     return builder.code(language, text)
 }
 
+function translateEquation(blockResponse: EquationBlockObjectResponse) {
+    return unistBuilder("math", blockResponse.equation.expression)
+}
+
 function textFromRichTextArray(richTextResponseArray: RichTextItemResponse[]) {
     return richTextResponseArray.map((richTextResponse) => richTextResponse.plain_text).join("")
 }
@@ -171,3 +178,5 @@ function translateAnyRichText(anyRichTextResponse: RichTextItemResponse) {
 
     return text
 }
+
+
