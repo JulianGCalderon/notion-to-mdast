@@ -36,14 +36,34 @@ bun run index.ts
 ## Roadmap
 
 - [ ] Single page to stdout
-    - [x] Paragraphs
-    - [x] Headings
-    - [x] Code block
-    - [x] Math block
-    - [ ] Images
+    - [ ] ~~Bookmark~~
+    - [ ] ~~Breadcrumb~~
+    - [ ] Bulleted list item
     - [ ] Callout
-    - [ ] Quotes
-    - [ ] ...
+    - [ ] ~~Child database~~
+    - [ ] Child page
+    - [x] Code
+    - [ ] Column list and column
+    - [ ] Divider
+    - [ ] Embed
+    - [x] Equation
+    - [ ] File
+    - [x] Headings
+    - [ ] Image
+    - [ ] Link Preview
+    - [x] Mention
+    - [ ] Numbered list item
+    - [x] Paragraph
+    - [ ] PDF
+    - [ ] Quote
+    - [ ] Synced block
+    - [ ] Table
+    - [ ] ~~Table of contents~~
+    - [ ] ~~Template~~
+    - [ ] To do
+    - [ ] Toggle blocks
+    - [ ] Video
 - [ ] Single page to file
 - [ ] Nested pages support
+
 
