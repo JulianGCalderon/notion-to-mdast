@@ -1,5 +1,5 @@
 import { Client, isFullBlock, iteratePaginatedAPI } from "@notionhq/client";
-import builder, { image } from "mdast-builder"
+import builder from "mdast-builder"
 import { u as unistBuilder } from 'unist-builder'
 import type {
     BookmarkBlockObjectResponse,
@@ -43,6 +43,7 @@ export async function translatePage(pageId: string) {
     }
 }
 
+//@ts-ignore
 async function translateChildren(blockId: string) {
     const childrenResponses = iteratePaginatedAPI(
         notionClient.blocks.children.list,
@@ -57,6 +58,7 @@ async function translateChildren(blockId: string) {
     // If I use `filter` method, typescript does not detect the impossibility
     // of an undefined.
     const childrenNodes = []
+    //@ts-ignore
     for (const childrenNode of await Promise.all(promises)) {
         if (childrenNode) {
             childrenNodes.push(childrenNode)
@@ -66,6 +68,7 @@ async function translateChildren(blockId: string) {
     return childrenNodes
 }
 
+//@ts-ignore
 async function translateBlock(blockResponse: GetBlockResponse) {
     if (!isFullBlock(blockResponse)) {
         console.error("No Full Block Response")
@@ -75,13 +78,12 @@ async function translateBlock(blockResponse: GetBlockResponse) {
     switch (blockResponse.type) {
         case "paragraph":
             return translateParagraph(blockResponse)
-        // Could not merge the three heading cases without type errors
         case "heading_1":
-            return translateHeading1(blockResponse)
+            return translateHeading(1, blockResponse)
         case "heading_2":
-            return translateHeading2(blockResponse)
+            return translateHeading(2, blockResponse)
         case "heading_3":
-            return translateHeading3(blockResponse)
+            return translateHeading(3, blockResponse)
         case "code":
             return translateCode(blockResponse)
         case "quote":
@@ -93,60 +95,43 @@ async function translateBlock(blockResponse: GetBlockResponse) {
         case "table_row":
             return translateTableRow(blockResponse)
         case "image":
-            return translateImage(blockResponse)
-        case "video":
-            return translateVideo(blockResponse)
-        case "pdf":
-            return translatePdf(blockResponse)
-        case "file":
-            return translateFile(blockResponse)
-        case "embed":
             return translateEmbed(blockResponse)
+        case "video":
+            return translateLink(blockResponse)
+        case "pdf":
+            return translateLink(blockResponse)
+        case "file":
+            return translateLink(blockResponse)
+        case "embed":
+            return translateLink(blockResponse)
         case "bookmark":
-            return translateBookmark(blockResponse)
+            return translateLink(blockResponse)
         case "link_preview":
-            return translateLinkPreview(blockResponse)
+            return translateLink(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
 }
 
+// BLOCK SUPPORT
+
 function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
-    const phrasingContent = paragraphResponse
+    const richText = paragraphResponse
         .paragraph
         .rich_text
-        .map(translateRichText)
 
+    const phrasingContent = translateRichTextArray(richText)
     return builder.paragraph(phrasingContent)
 }
 
-function translateHeading1(headingResponse: Heading1BlockObjectResponse) {
-    const phrasingContent = headingResponse
-        .heading_1
+type HeadingBlockObjectResponse = Heading1BlockObjectResponse | Heading2BlockObjectResponse | Heading3BlockObjectResponse
+function translateHeading(depth: number, headingResponse: HeadingBlockObjectResponse) {
+    //@ts-ignore
+    const richText = headingResponse[headingResponse.type]
         .rich_text
-        .map(translateRichText)
 
-    // The heading depth is increased, so that the title of the page can have a
-    // depth of 1, while the contained headings have a higher depth.
-    return builder.heading(2, phrasingContent)
-}
-
-function translateHeading2(headingResponse: Heading2BlockObjectResponse) {
-    const phrasingContent = headingResponse
-        .heading_2
-        .rich_text
-        .map(translateRichText)
-
-    return builder.heading(3, phrasingContent)
-}
-
-function translateHeading3(headingResponse: Heading3BlockObjectResponse) {
-    const phrasingContent = headingResponse
-        .heading_3
-        .rich_text
-        .map(translateRichText)
-
-    return builder.heading(4, phrasingContent)
+    const phrasingContent = translateRichTextArray(richText)
+    return builder.heading(depth + 1, phrasingContent)
 }
 
 function translateCode(codeResponse: CodeBlockObjectResponse) {
@@ -159,11 +144,11 @@ function translateCode(codeResponse: CodeBlockObjectResponse) {
 }
 
 function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
-    const phrasingContent = quoteResponse
+    const richText = quoteResponse
         .quote
         .rich_text
-        .map(translateRichText)
 
+    const phrasingContent = translateRichTextArray(richText)
     return builder.blockquote(phrasingContent)
 }
 
@@ -171,7 +156,11 @@ function translateEquation(equationResponse: EquationBlockObjectResponse) {
     return unistBuilder("math", equationResponse.equation.expression)
 }
 
+// TABLE SUPPORT
+
+//@ts-ignore
 async function translateTable(tableResponse: TableBlockObjectResponse) {
+    //@ts-ignore
     const rows = await translateChildren(tableResponse.id)
 
     return builder.table(undefined, rows)
@@ -179,84 +168,61 @@ async function translateTable(tableResponse: TableBlockObjectResponse) {
 
 
 function translateTableRow(tableRowResponse: TableRowBlockObjectResponse) {
-    const cells = tableRowResponse.table_row.cells.map((richTextResponseArray) => {
-        const text = richTextResponseArray.map(translateRichText)
-        return builder.tableCell(text)
+    const cells = tableRowResponse.table_row.cells.map((richText) => {
+        const phrasingContent = translateRichTextArray(richText)
+        return builder.tableCell(phrasingContent)
     })
 
     return builder.tableRow(cells)
 }
 
-function translateImage(imageResponse: ImageBlockObjectResponse) {
-    const image = imageResponse.image
+// LINK SUPPORT
 
-    //@ts-ignore
-    const url = image[image.type].url
+type LinkObjectResponse = ImageBlockObjectResponse | VideoBlockObjectResponse | PdfBlockObjectResponse | FileBlockObjectResponse | EmbedBlockObjectResponse | BookmarkBlockObjectResponse | LinkPreviewBlockObjectResponse
 
-    const caption = textFromRichTextArray(image.caption)
+function translateEmbed(linkResponse: LinkObjectResponse) {
+    const url = urlFromLink(linkResponse)
+    const caption = captionFromLink(linkResponse)
+
     return builder.paragraph(builder.image(url, caption, caption))
 }
 
-function translateVideo(videoResponse: VideoBlockObjectResponse) {
-    const video = videoResponse.video
+function translateLink(linkResponse: LinkObjectResponse) {
+    const url = urlFromLink(linkResponse)
+    const caption = captionFromLink(linkResponse)
 
+    return builder.paragraph(builder.link(url, caption))
+}
+
+function urlFromLink(linkResponse: LinkObjectResponse) {
     //@ts-ignore
-    const url = video[video.type].url
+    const link = linkResponse[linkResponse.type]
 
-    const caption = textFromRichTextArray(video.caption)
-    return builder.paragraph(builder.link(url, caption))
+    if ("type" in link) {
+        return link[link.type].url
+    } else {
+        return link.url
+    }
+
 }
 
-function translatePdf(pdfResponse: PdfBlockObjectResponse) {
-    const pdf = pdfResponse.pdf
-
+function captionFromLink(linkResponse: LinkObjectResponse) {
     //@ts-ignore
-    const url = pdf[pdf.type].url
+    const link = linkResponse[linkResponse.type]
 
-    const caption = textFromRichTextArray(pdf.caption)
-    return builder.paragraph(builder.link(url, caption))
-}
-
-function translateFile(fileResponse: FileBlockObjectResponse) {
-    const file = fileResponse.file
-
-    //@ts-ignore
-    const url = file[file.type].url
-
-    const caption = textFromRichTextArray(file.caption)
-    return builder.paragraph(builder.link(url, caption))
-}
-
-function translateEmbed(embedResponse: EmbedBlockObjectResponse) {
-    const embed = embedResponse.embed
-
-    const url = embed.url
-
-    const caption = textFromRichTextArray(embed.caption)
-    return builder.paragraph(builder.link(url, caption))
-}
-
-function translateBookmark(bookmarkResponse: BookmarkBlockObjectResponse) {
-    const embed = bookmarkResponse.bookmark
-
-    const url = embed.url
-
-    const caption = textFromRichTextArray(embed.caption)
-    return builder.paragraph(builder.link(url, caption))
-}
-
-function translateLinkPreview(linkPreviewResponse: LinkPreviewBlockObjectResponse) {
-    const linkPreview = linkPreviewResponse.link_preview
-
-    const url = linkPreview.url
-
-    return builder.paragraph(builder.link(url))
+    if ("caption" in link) {
+        return textFromRichTextArray(link.caption)
+    }
 }
 
 // RICH TEXT SUPPORT
 
 function textFromRichTextArray(richTextResponseArray: RichTextItemResponse[]) {
     return richTextResponseArray.map((richTextResponse) => richTextResponse.plain_text).join("")
+}
+
+function translateRichTextArray(richTextResponseArray: RichTextItemResponse[]) {
+    return richTextResponseArray.map(translateRichText)
 }
 
 export function translateRichText(richTextResponse: RichTextItemResponse) {
@@ -303,5 +269,3 @@ function translateAnyRichText(anyRichTextResponse: RichTextItemResponse) {
 
     return text
 }
-
-
