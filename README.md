@@ -48,8 +48,8 @@ bun run index.ts
     - [x] PDF
     - [x] File
     - [x] Embed
-    - [ ] Bookmark
-    - [ ] Link Preview
+    - [x] Bookmark
+    - [x] Link Preview
     - [ ] Synced block (as container)
     - [ ] Toggle blocks (as container)
     - [ ] Column list and column (as container)

@@ -102,66 +102,14 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateFile(blockResponse)
         case "embed":
             return translateEmbed(blockResponse)
-        // case "bookmark":
-        //     return translateBookmark(blockResponse)
-        // case "link_preview":
-        //     return translateLinkPreview(blockResponse)
+        case "bookmark":
+            return translateBookmark(blockResponse)
+        case "link_preview":
+            return translateLinkPreview(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
 }
-
-function translateImage(imageResponse: ImageBlockObjectResponse) {
-    const image = imageResponse.image
-
-    //@ts-ignore
-    const url = image[image.type].url
-
-    const caption = textFromRichTextArray(image.caption)
-    return builder.paragraph(builder.image(url, caption, caption))
-}
-
-function translateVideo(videoResponse: VideoBlockObjectResponse) {
-    const video = videoResponse.video
-
-    //@ts-ignore
-    const url = video[video.type].url
-
-    const caption = textFromRichTextArray(video.caption)
-    return builder.paragraph(builder.image(url, caption))
-}
-
-function translatePdf(pdfResponse: PdfBlockObjectResponse) {
-    const pdf = pdfResponse.pdf
-
-    //@ts-ignore
-    const url = pdf[pdf.type].url
-
-    const caption = textFromRichTextArray(pdf.caption)
-    return builder.paragraph(builder.image(url, caption))
-}
-
-function translateFile(fileResponse: FileBlockObjectResponse) {
-    const file = fileResponse.file
-
-    //@ts-ignore
-    const url = file[file.type].url
-
-    const caption = textFromRichTextArray(file.caption)
-    return builder.paragraph(builder.link(url, caption))
-}
-
-function translateEmbed(embedResponse: EmbedBlockObjectResponse) {
-    const embed = embedResponse.embed
-
-    const url = embed.url
-
-    const caption = textFromRichTextArray(embed.caption)
-    return builder.paragraph(builder.image(url, caption, caption))
-}
-
-// function translateBookmark(bookmarkResponse: BookmarkBlockObjectResponse) { }
-// function translateLinkPreview(linkPreviewResponse: LinkPreviewBlockObjectResponse) { }
 
 function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
     const phrasingContent = paragraphResponse
@@ -237,6 +185,72 @@ function translateTableRow(tableRowResponse: TableRowBlockObjectResponse) {
     })
 
     return builder.tableRow(cells)
+}
+
+function translateImage(imageResponse: ImageBlockObjectResponse) {
+    const image = imageResponse.image
+
+    //@ts-ignore
+    const url = image[image.type].url
+
+    const caption = textFromRichTextArray(image.caption)
+    return builder.paragraph(builder.image(url, caption, caption))
+}
+
+function translateVideo(videoResponse: VideoBlockObjectResponse) {
+    const video = videoResponse.video
+
+    //@ts-ignore
+    const url = video[video.type].url
+
+    const caption = textFromRichTextArray(video.caption)
+    return builder.paragraph(builder.link(url, caption))
+}
+
+function translatePdf(pdfResponse: PdfBlockObjectResponse) {
+    const pdf = pdfResponse.pdf
+
+    //@ts-ignore
+    const url = pdf[pdf.type].url
+
+    const caption = textFromRichTextArray(pdf.caption)
+    return builder.paragraph(builder.link(url, caption))
+}
+
+function translateFile(fileResponse: FileBlockObjectResponse) {
+    const file = fileResponse.file
+
+    //@ts-ignore
+    const url = file[file.type].url
+
+    const caption = textFromRichTextArray(file.caption)
+    return builder.paragraph(builder.link(url, caption))
+}
+
+function translateEmbed(embedResponse: EmbedBlockObjectResponse) {
+    const embed = embedResponse.embed
+
+    const url = embed.url
+
+    const caption = textFromRichTextArray(embed.caption)
+    return builder.paragraph(builder.link(url, caption))
+}
+
+function translateBookmark(bookmarkResponse: BookmarkBlockObjectResponse) {
+    const embed = bookmarkResponse.bookmark
+
+    const url = embed.url
+
+    const caption = textFromRichTextArray(embed.caption)
+    return builder.paragraph(builder.link(url, caption))
+}
+
+function translateLinkPreview(linkPreviewResponse: LinkPreviewBlockObjectResponse) {
+    const linkPreview = linkPreviewResponse.link_preview
+
+    const url = linkPreview.url
+
+    return builder.paragraph(builder.link(url))
 }
 
 // RICH TEXT SUPPORT
