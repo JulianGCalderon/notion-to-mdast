@@ -1,7 +1,8 @@
 import { Client, isFullBlock, iteratePaginatedAPI } from "@notionhq/client";
-import builder from "mdast-builder"
+import builder, { text } from "mdast-builder"
 import { u as unistBuilder } from 'unist-builder'
 import type {
+    CodeBlockObjectResponse,
     EquationRichTextItemResponse,
     GetBlockResponse,
     Heading1BlockObjectResponse,
@@ -70,6 +71,8 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateHeading2(blockResponse)
         case "heading_3":
             return translateHeading3(blockResponse)
+        case "code":
+            return translateCode(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
@@ -114,6 +117,19 @@ function translateHeading3(headingResponse: Heading3BlockObjectResponse) {
     return builder.heading(4, phrasingContent)
 }
 
+function translateCode(codeResponse: CodeBlockObjectResponse) {
+    console.error(codeResponse.code.rich_text)
+
+    const language = codeResponse.code.language
+    const text = textFromRichTextArray(codeResponse.code.rich_text)
+
+    return builder.code(language, text)
+}
+
+function textFromRichTextArray(richTextResponseArray: RichTextItemResponse[]) {
+    return richTextResponseArray.map((richTextResponse) => richTextResponse.plain_text).join("")
+}
+
 export function translateRichText(richTextResponse: RichTextItemResponse) {
     switch (richTextResponse.type) {
         case "text":
@@ -126,7 +142,6 @@ export function translateRichText(richTextResponse: RichTextItemResponse) {
 }
 
 function translateTextRichText(textRichTextResponse: TextRichTextItemResponse) {
-
     let text = translateAnyRichText(textRichTextResponse)
 
     let link = textRichTextResponse.text.link
@@ -141,16 +156,16 @@ function translateEquationRichText(equationRichTextResponse: EquationRichTextIte
     return unistBuilder("inlineMath", {}, equationRichTextResponse.equation.expression)
 }
 
-function translateAnyRichText(AnyRichTextResponse: RichTextItemResponse) {
-    if (AnyRichTextResponse.annotations.code) {
-        return builder.inlineCode(AnyRichTextResponse.plain_text)
+function translateAnyRichText(anyRichTextResponse: RichTextItemResponse) {
+    if (anyRichTextResponse.annotations.code) {
+        return builder.inlineCode(anyRichTextResponse.plain_text)
     }
 
-    let text = builder.text(AnyRichTextResponse.plain_text)
-    if (AnyRichTextResponse.annotations.bold) {
+    let text = builder.text(anyRichTextResponse.plain_text)
+    if (anyRichTextResponse.annotations.bold) {
         text = builder.strong(text)
     }
-    if (AnyRichTextResponse.annotations.italic) {
+    if (anyRichTextResponse.annotations.italic) {
         text = builder.emphasis(text)
     }
 
