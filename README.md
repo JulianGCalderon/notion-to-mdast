@@ -38,8 +38,11 @@ bun run index.ts
 - [ ] Single page to stdout
     - [x] Paragraphs
     - [x] Headings
-    - [ ] Code block
-    - [ ] Math block
+    - [x] Code block
+    - [x] Math block
+    - [ ] Images
+    - [ ] Callout
+    - [ ] Quotes
     - [ ] ...
 - [ ] Single page to file
 - [ ] Nested pages support
