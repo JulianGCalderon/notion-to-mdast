@@ -42,14 +42,14 @@ bun run index.ts
     - [x] Code
     - [x] Quote
     - [x] Equation
-    - [ ] Table
-    - [ ] Callout (with ofm)
+    - [x] Table
     - [ ] Image
     - [ ] Video
     - [ ] PDF
     - [ ] File
     - [ ] Embed
     - [ ] Link Preview
+    - [ ] Callout (with ofm)
     - [ ] Synced block (as container)
     - [ ] Toggle blocks (as container)
     - [ ] Column list and column (as container)

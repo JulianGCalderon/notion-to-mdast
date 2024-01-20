@@ -14,6 +14,8 @@ import type {
     ParagraphBlockObjectResponse,
     QuoteBlockObjectResponse,
     RichTextItemResponse,
+    TableBlockObjectResponse,
+    TableRowBlockObjectResponse,
     TextRichTextItemResponse,
     ToDoBlockObjectResponse
 } from "@notionhq/client/build/src/api-endpoints";
@@ -84,6 +86,8 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateEquation(blockResponse)
         case "table":
             return translateTable(blockResponse)
+        case "table_row":
+            return translateTableRow(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
@@ -146,12 +150,25 @@ function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
     return builder.blockquote(phrasingContent)
 }
 
-function translateEquation(blockResponse: EquationBlockObjectResponse) {
-    return unistBuilder("math", blockResponse.equation.expression)
+function translateEquation(equationResponse: EquationBlockObjectResponse) {
+    return unistBuilder("math", equationResponse.equation.expression)
+}
+
+async function translateTable(tableResponse: TableBlockObjectResponse) {
+    const rows = await translateChildren(tableResponse.id)
+
+    return builder.table(undefined, rows)
 }
 
 
+function translateTableRow(tableRowResponse: TableRowBlockObjectResponse) {
+    const cells = tableRowResponse.table_row.cells.map((richTextResponseArray) => {
+        const text = richTextResponseArray.map(translateRichText)
+        return builder.tableCell(text)
+    })
 
+    return builder.tableRow(cells)
+}
 
 // RICH TEXT SUPPORT
 
