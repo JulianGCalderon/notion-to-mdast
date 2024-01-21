@@ -5,6 +5,7 @@ import type {
     BookmarkBlockObjectResponse,
     CalloutBlockObjectResponse,
     CodeBlockObjectResponse,
+    DividerBlockObjectResponse,
     EmbedBlockObjectResponse,
     EquationBlockObjectResponse,
     EquationRichTextItemResponse,
@@ -89,6 +90,10 @@ async function translateBlock(blockResponse: GetBlockResponse): Promise<Node | N
             return translateTableRow(blockResponse)
         case "callout":
             return translateCallout(blockResponse)
+        case "toggle":
+            return translateToggle(blockResponse)
+        case "divider":
+            return translateDivider(blockResponse)
         case "image":
             return translateEmbed(blockResponse)
         case "video":
@@ -102,8 +107,6 @@ async function translateBlock(blockResponse: GetBlockResponse): Promise<Node | N
         case "column_list":
         case "column":
             return translateContainer(blockResponse)
-        case "toggle":
-            return translateToggle(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
@@ -195,6 +198,12 @@ function translateTableRow(tableRowResponse: TableRowBlockObjectResponse) {
     })
 
     return builder.tableRow(cells)
+}
+
+// DIVIDER SUPPORT
+
+function translateDivider(_: DividerBlockObjectResponse) {
+    return builder.separator()
 }
 
 // CONTAINER SUPPORT

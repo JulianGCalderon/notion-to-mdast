@@ -44,12 +44,11 @@ bun run index.ts
     - [x] Equation
     - [x] Table
     - [x] Callout (with ofm)
-    - [x] Synced block (as container)
     - [x] Toggle blocks (as list item)
-    - [x] Column list and column (as container)
     - [ ] Numbered list item
     - [ ] Bulleted list item
     - [ ] To do (with gfm)
+    - [x] Divider
     - [x] Image
     - [x] Video
     - [x] PDF
@@ -57,11 +56,12 @@ bun run index.ts
     - [x] Embed
     - [x] Bookmark
     - [x] Link Preview
+    - [x] Synced block (as container)
+    - [x] Column list and column (as container)
     - [ ] Child page
+    - ~~Template~~
     - ~~Breadcrumb~~
     - ~~Child database~~
-    - ~~Divider~~
     - ~~Table of contents~~
-    - ~~Template~~
 - [ ] Single page to file
 - [ ] Nested pages support
