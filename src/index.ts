@@ -11,10 +11,10 @@ require("dotenv").config();
 let pageRoot = await translatePage(process.env.PAGE_ID!);
 
 let pageString = unified()
+    .use(remarkStringify, { emphasis: "_" })
     .use(remarkMath)
     .use(remarkGfm)
     .use(remarkOfm)
-    .use(remarkStringify, { emphasis: "_" })
     .stringify(pageRoot as Root)
 
 console.log(pageString)
