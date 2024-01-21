@@ -94,8 +94,8 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateEmbed(blockResponse)
         case "video":
         case "pdf":
-        case "file":
         case "embed":
+        case "file":
         case "bookmark":
         case "link_preview":
             return translateLink(blockResponse)
@@ -110,27 +110,6 @@ async function translateBlock(blockResponse: GetBlockResponse) {
     }
 
     return []
-}
-
-// CONTAINER SUPPORT
-
-//@ts-ignore
-async function translateContainer(syncedBlockResponse: BlockObjectResponse) {
-    return translateChildren(syncedBlockResponse.id)
-}
-
-//@ts-ignore
-async function translateToggle(toggleBlockResponse: ToggleBlockObjectResponse) {
-    const richText = toggleBlockResponse.toggle.rich_text
-
-    const toggleTitle = builder.paragraph(translateRichTextArray(richText))
-    const children = await translateContainer(toggleBlockResponse)
-
-    children.unshift(toggleTitle)
-
-    const listItem = builder.listItem(children)
-
-    return builder.list("unordered", listItem)
 }
 
 // BLOCK SUPPORT
@@ -194,22 +173,41 @@ function translateTableRow(tableRowResponse: TableRowBlockObjectResponse) {
     return builder.tableRow(cells)
 }
 
+// CONTAINER SUPPORT
+
+//@ts-ignore
+async function translateContainer(syncedBlockResponse: BlockObjectResponse) {
+    return translateChildren(syncedBlockResponse.id)
+}
+
+//@ts-ignore
+async function translateToggle(toggleBlockResponse: ToggleBlockObjectResponse) {
+    const richText = toggleBlockResponse.toggle.rich_text
+
+    const toggleTitle = builder.paragraph(translateRichTextArray(richText))
+    const children = await translateContainer(toggleBlockResponse)
+
+    children.unshift(toggleTitle)
+
+    const listItem = builder.listItem(children)
+
+    return builder.list("unordered", listItem)
+}
+
 // LINK SUPPORT
 
 type LinkObjectResponse = ImageBlockObjectResponse | VideoBlockObjectResponse | PdfBlockObjectResponse | FileBlockObjectResponse | EmbedBlockObjectResponse | BookmarkBlockObjectResponse | LinkPreviewBlockObjectResponse
 
 function translateEmbed(linkResponse: LinkObjectResponse) {
     const url = urlFromLink(linkResponse)
-    const caption = captionFromLink(linkResponse)
-
-    return builder.paragraph(builder.image(url, caption, caption))
+    const title = captionFromLink(linkResponse)
+    return builder.paragraph(builder.image(url, undefined, title))
 }
 
 function translateLink(linkResponse: LinkObjectResponse) {
     const url = urlFromLink(linkResponse)
-    const caption = captionFromLink(linkResponse)
-
-    return builder.paragraph(builder.link(url, caption))
+    const title = builder.text(captionFromLink(linkResponse) || url)
+    return builder.paragraph(builder.link(url, undefined, title))
 }
 
 function urlFromLink(linkResponse: LinkObjectResponse) {
