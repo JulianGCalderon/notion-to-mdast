@@ -113,23 +113,29 @@ async function translateBlock(blockResponse: GetBlockResponse): Promise<Node | N
 
 // BLOCK SUPPORT
 
-function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
+async function translateParagraph(paragraphResponse: ParagraphBlockObjectResponse) {
     const richText = paragraphResponse
         .paragraph
         .rich_text
-
     const phrasingContent = translateRichTextArray(richText)
+
     return builder.paragraph(phrasingContent)
 }
 
 type HeadingBlockObjectResponse = Heading1BlockObjectResponse | Heading2BlockObjectResponse | Heading3BlockObjectResponse
-function translateHeading(depth: number, headingResponse: HeadingBlockObjectResponse) {
+async function translateHeading(depth: number, headingResponse: HeadingBlockObjectResponse) {
     //@ts-ignore
     const richText = headingResponse[headingResponse.type]
         .rich_text
 
     const phrasingContent = translateRichTextArray(richText)
-    return builder.heading(depth + 1, phrasingContent)
+    const heading: Array<Node> = [builder.heading(depth + 1, phrasingContent)]
+
+    if (headingResponse.has_children) {
+        heading.push(...await translateChildren(headingResponse.id))
+    }
+
+    return heading
 }
 
 function translateCode(codeResponse: CodeBlockObjectResponse) {
@@ -139,13 +145,17 @@ function translateCode(codeResponse: CodeBlockObjectResponse) {
     return builder.code(language, text)
 }
 
-function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
+async function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
     const richText = quoteResponse
         .quote
         .rich_text
+    const quoteChildren: Array<Node> = [builder.paragraph(translateRichTextArray(richText))]
 
-    const phrasingContent = translateRichTextArray(richText)
-    return builder.blockquote(builder.paragraph(phrasingContent))
+    if (quoteResponse.has_children) {
+        quoteChildren.push(...await translateChildren(quoteResponse.id))
+    }
+
+    return builder.blockquote(quoteChildren)
 }
 
 function translateEquation(equationResponse: EquationBlockObjectResponse) {
