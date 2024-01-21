@@ -1,12 +1,10 @@
 import { Client, isFullBlock, iteratePaginatedAPI } from "@notionhq/client";
-import builder from "mdast-builder"
-import { u as unistBuilder } from 'unist-builder'
+import * as builder from "mdast-builder"
 import type {
     BlockObjectResponse,
     BookmarkBlockObjectResponse,
+    CalloutBlockObjectResponse,
     CodeBlockObjectResponse,
-    ColumnBlockObjectResponse,
-    ColumnListBlockObjectResponse,
     EmbedBlockObjectResponse,
     EquationBlockObjectResponse,
     EquationRichTextItemResponse,
@@ -21,7 +19,6 @@ import type {
     PdfBlockObjectResponse,
     QuoteBlockObjectResponse,
     RichTextItemResponse,
-    SyncedBlockBlockObjectResponse,
     TableBlockObjectResponse,
     TableRowBlockObjectResponse,
     TextRichTextItemResponse,
@@ -29,6 +26,7 @@ import type {
     VideoBlockObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { getTitle } from "./metadata";
+import type { Node } from "unist";
 
 const notionClient = new Client({
     auth: process.env.NOTION_API_KEY,
@@ -90,6 +88,8 @@ async function translateBlock(blockResponse: GetBlockResponse) {
             return translateTable(blockResponse)
         case "table_row":
             return translateTableRow(blockResponse)
+        // case "callout":
+        //     return translateCallout(blockResponse)
         case "image":
             return translateEmbed(blockResponse)
         case "video":
@@ -150,7 +150,22 @@ function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
 }
 
 function translateEquation(equationResponse: EquationBlockObjectResponse) {
-    return unistBuilder("math", equationResponse.equation.expression)
+    return builder.math(equationResponse.equation.expression)
+}
+
+
+//@ts-ignore
+async function translateCallout(calloutResponse: CalloutBlockObjectResponse) {
+    //@ts-ignore
+    const richText = calloutResponse.callout.rich_text
+    const phrasingContent = translateRichTextArray(richText)
+    const firstParagraph = builder.paragraph(phrasingContent)
+
+    //@ts-ignore
+    const children = await translateChildren(calloutResponse.id)
+    children.unshift(firstParagraph)
+
+    return builder.callout(children)
 }
 
 // TABLE SUPPORT
@@ -264,7 +279,7 @@ function translateTextRichText(textRichTextResponse: TextRichTextItemResponse) {
 }
 
 function translateEquationRichText(equationRichTextResponse: EquationRichTextItemResponse) {
-    return unistBuilder("inlineMath", {}, equationRichTextResponse.equation.expression)
+    return builder.inlineMath(equationRichTextResponse.equation.expression)
 }
 
 function translateAnyRichText(anyRichTextResponse: RichTextItemResponse) {
@@ -272,7 +287,7 @@ function translateAnyRichText(anyRichTextResponse: RichTextItemResponse) {
         return builder.inlineCode(anyRichTextResponse.plain_text)
     }
 
-    let text = builder.text(anyRichTextResponse.plain_text)
+    let text = builder.text(anyRichTextResponse.plain_text) as Node
     if (anyRichTextResponse.annotations.bold) {
         text = builder.strong(text)
     }
@@ -280,7 +295,7 @@ function translateAnyRichText(anyRichTextResponse: RichTextItemResponse) {
         text = builder.emphasis(text)
     }
     if (anyRichTextResponse.annotations.strikethrough) {
-        text = unistBuilder("delete", {}, [text])
+        text = builder.strike(text)
     }
 
     return text
