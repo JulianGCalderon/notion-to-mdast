@@ -45,7 +45,7 @@ bun run index.ts
     - [x] Table
     - [ ] Callout (with ofm)
     - [x] Synced block (as container)
-    - [ ] Toggle blocks (as list item)
+    - [x] Toggle blocks (as list item)
     - [x] Column list and column (as container)
     - [ ] Numbered list item
     - [ ] Bulleted list item

@@ -127,15 +127,20 @@ async function translateHeading(depth: number, headingResponse: HeadingBlockObje
     //@ts-ignore
     const richText = headingResponse[headingResponse.type]
         .rich_text
+    //@ts-ignore
+    const isToggleable = headingResponse[headingResponse.type]
+        .is_toggleable
 
     const phrasingContent = translateRichTextArray(richText)
-    const heading: Array<Node> = [builder.heading(depth + 1, phrasingContent)]
+    const heading = builder.heading(depth + 1, phrasingContent)
 
-    if (headingResponse.has_children) {
-        heading.push(...await translateChildren(headingResponse.id))
+    if (isToggleable) {
+        const children: Array<Node> = [heading]
+        children.push(...await translateChildren(headingResponse.id))
+        return builder.list("unordered", builder.listItem(children))
+    } else {
+        return heading
     }
-
-    return heading
 }
 
 function translateCode(codeResponse: CodeBlockObjectResponse) {
@@ -201,14 +206,10 @@ async function translateContainer(syncedBlockResponse: BlockObjectResponse) {
 async function translateToggle(toggleBlockResponse: ToggleBlockObjectResponse) {
     const richText = toggleBlockResponse.toggle.rich_text
 
-    const toggleTitle = builder.paragraph(translateRichTextArray(richText))
-    const children = await translateContainer(toggleBlockResponse)
+    const children: Array<Node> = [builder.paragraph(translateRichTextArray(richText))]
 
-    children.unshift(toggleTitle)
-
-    const listItem = builder.listItem(children)
-
-    return builder.list("unordered", listItem)
+    children.push(...await translateContainer(toggleBlockResponse))
+    return builder.list("unordered", builder.listItem(children))
 }
 
 // LINK SUPPORT
