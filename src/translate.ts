@@ -27,12 +27,13 @@ import type {
 } from "@notionhq/client/build/src/api-endpoints";
 import { getTitle } from "./metadata";
 import type { Node } from "unist";
+import type { Root } from "mdast";
 
 const notionClient = new Client({
     auth: process.env.NOTION_API_KEY,
 });
 
-export async function translatePage(pageId: string) {
+export async function translatePage(pageId: string): Promise<Root> {
     const pageResponse = await notionClient.pages.retrieve({
         page_id: pageId
     })
@@ -47,8 +48,7 @@ export async function translatePage(pageId: string) {
     }
 }
 
-//@ts-ignore
-async function translateChildren(blockId: string) {
+async function translateChildren(blockId: string): Promise<Node[]> {
     const childrenResponses = iteratePaginatedAPI(
         notionClient.blocks.children.list,
         { block_id: blockId }
@@ -62,8 +62,7 @@ async function translateChildren(blockId: string) {
     return (await Promise.all(promises)).flat()
 }
 
-//@ts-ignore
-async function translateBlock(blockResponse: GetBlockResponse) {
+async function translateBlock(blockResponse: GetBlockResponse): Promise<Node | Node[]> {
     if (!isFullBlock(blockResponse)) {
         console.error("No Full Block Response")
         return []
@@ -154,14 +153,11 @@ function translateEquation(equationResponse: EquationBlockObjectResponse) {
 }
 
 
-//@ts-ignore
 async function translateCallout(calloutResponse: CalloutBlockObjectResponse) {
-    //@ts-ignore
     const richText = calloutResponse.callout.rich_text
     const phrasingContent = translateRichTextArray(richText)
     const firstParagraph = builder.paragraph(phrasingContent)
 
-    //@ts-ignore
     const children = await translateChildren(calloutResponse.id)
     children.unshift(firstParagraph)
 
@@ -170,9 +166,7 @@ async function translateCallout(calloutResponse: CalloutBlockObjectResponse) {
 
 // TABLE SUPPORT
 
-//@ts-ignore
 async function translateTable(tableResponse: TableBlockObjectResponse) {
-    //@ts-ignore
     const rows = await translateChildren(tableResponse.id)
 
     return builder.table(undefined, rows)
@@ -190,12 +184,10 @@ function translateTableRow(tableRowResponse: TableRowBlockObjectResponse) {
 
 // CONTAINER SUPPORT
 
-//@ts-ignore
 async function translateContainer(syncedBlockResponse: BlockObjectResponse) {
     return translateChildren(syncedBlockResponse.id)
 }
 
-//@ts-ignore
 async function translateToggle(toggleBlockResponse: ToggleBlockObjectResponse) {
     const richText = toggleBlockResponse.toggle.rich_text
 
