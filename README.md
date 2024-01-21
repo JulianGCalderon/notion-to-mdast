@@ -44,9 +44,9 @@ bun run index.ts
     - [x] Equation
     - [x] Table
     - [ ] Callout (with ofm)
-    - [ ] Synced block (as container)
-    - [ ] Toggle blocks (as container)
-    - [ ] Column list and column (as container)
+    - [x] Synced block (as container)
+    - [x] Toggle blocks (as list item)
+    - [x] Column list and column (as container)
     - [ ] Numbered list item
     - [ ] Bulleted list item
     - [ ] To do (with gfm)

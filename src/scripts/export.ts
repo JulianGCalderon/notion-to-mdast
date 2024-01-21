@@ -9,6 +9,8 @@ require("dotenv").config();
 
 let pageRoot = await translatePage(process.env.PAGE_ID!);
 
+console.error(JSON.stringify(pageRoot, null, 1))
+
 let pageString = unified()
     .use(remarkMath)
     .use(remarkGfm)

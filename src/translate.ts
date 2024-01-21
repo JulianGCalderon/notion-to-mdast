@@ -2,8 +2,11 @@ import { Client, isFullBlock, iteratePaginatedAPI } from "@notionhq/client";
 import builder from "mdast-builder"
 import { u as unistBuilder } from 'unist-builder'
 import type {
+    BlockObjectResponse,
     BookmarkBlockObjectResponse,
     CodeBlockObjectResponse,
+    ColumnBlockObjectResponse,
+    ColumnListBlockObjectResponse,
     EmbedBlockObjectResponse,
     EquationBlockObjectResponse,
     EquationRichTextItemResponse,
@@ -18,9 +21,11 @@ import type {
     PdfBlockObjectResponse,
     QuoteBlockObjectResponse,
     RichTextItemResponse,
+    SyncedBlockBlockObjectResponse,
     TableBlockObjectResponse,
     TableRowBlockObjectResponse,
     TextRichTextItemResponse,
+    ToggleBlockObjectResponse,
     VideoBlockObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { getTitle } from "./metadata";
@@ -33,6 +38,7 @@ export async function translatePage(pageId: string) {
     const pageResponse = await notionClient.pages.retrieve({
         page_id: pageId
     })
+
     const children = await translateChildren(pageId)
 
     const title = getTitle(pageResponse)
@@ -55,24 +61,14 @@ async function translateChildren(blockId: string) {
         promises.push(translateBlock(blockResponse))
     }
 
-    // If I use `filter` method, typescript does not detect the impossibility
-    // of an undefined.
-    const childrenNodes = []
-    //@ts-ignore
-    for (const childrenNode of await Promise.all(promises)) {
-        if (childrenNode) {
-            childrenNodes.push(childrenNode)
-        }
-    }
-
-    return childrenNodes
+    return (await Promise.all(promises)).flat()
 }
 
 //@ts-ignore
 async function translateBlock(blockResponse: GetBlockResponse) {
     if (!isFullBlock(blockResponse)) {
         console.error("No Full Block Response")
-        return
+        return []
     }
 
     switch (blockResponse.type) {
@@ -97,20 +93,44 @@ async function translateBlock(blockResponse: GetBlockResponse) {
         case "image":
             return translateEmbed(blockResponse)
         case "video":
-            return translateLink(blockResponse)
         case "pdf":
-            return translateLink(blockResponse)
         case "file":
-            return translateLink(blockResponse)
         case "embed":
-            return translateLink(blockResponse)
         case "bookmark":
-            return translateLink(blockResponse)
         case "link_preview":
             return translateLink(blockResponse)
+        case "synced_block":
+        case "column_list":
+        case "column":
+            return translateContainer(blockResponse)
+        case "toggle":
+            return translateToggle(blockResponse)
         default:
             console.error(`Unknown Type: ${blockResponse.type}`)
     }
+
+    return []
+}
+
+// CONTAINER SUPPORT
+
+//@ts-ignore
+async function translateContainer(syncedBlockResponse: BlockObjectResponse) {
+    return translateChildren(syncedBlockResponse.id)
+}
+
+//@ts-ignore
+async function translateToggle(toggleBlockResponse: ToggleBlockObjectResponse) {
+    const richText = toggleBlockResponse.toggle.rich_text
+
+    const toggleTitle = builder.paragraph(translateRichTextArray(richText))
+    const children = await translateContainer(toggleBlockResponse)
+
+    children.unshift(toggleTitle)
+
+    const listItem = builder.listItem(children)
+
+    return builder.list("unordered", listItem)
 }
 
 // BLOCK SUPPORT
@@ -135,8 +155,6 @@ function translateHeading(depth: number, headingResponse: HeadingBlockObjectResp
 }
 
 function translateCode(codeResponse: CodeBlockObjectResponse) {
-    console.error(codeResponse.code.rich_text)
-
     const language = codeResponse.code.language
     const text = textFromRichTextArray(codeResponse.code.rich_text)
 
@@ -149,7 +167,7 @@ function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
         .rich_text
 
     const phrasingContent = translateRichTextArray(richText)
-    return builder.blockquote(phrasingContent)
+    return builder.blockquote(builder.paragraph(phrasingContent))
 }
 
 function translateEquation(equationResponse: EquationBlockObjectResponse) {
