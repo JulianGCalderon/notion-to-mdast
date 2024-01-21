@@ -87,8 +87,8 @@ async function translateBlock(blockResponse: GetBlockResponse): Promise<Node | N
             return translateTable(blockResponse)
         case "table_row":
             return translateTableRow(blockResponse)
-        // case "callout":
-        //     return translateCallout(blockResponse)
+        case "callout":
+            return translateCallout(blockResponse)
         case "image":
             return translateEmbed(blockResponse)
         case "video":
@@ -226,7 +226,6 @@ function urlFromLink(linkResponse: LinkObjectResponse) {
     } else {
         return link.url
     }
-
 }
 
 function captionFromLink(linkResponse: LinkObjectResponse) {
