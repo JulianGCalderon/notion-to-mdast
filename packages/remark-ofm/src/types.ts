@@ -1,11 +1,7 @@
-import type { ListItem, Parent } from "mdast"
+import type { Parent } from "mdast"
 
 export interface Callout extends Parent {
     type: 'callout'
-}
-
-export interface TaskListItem extends ListItem {
-    checked: boolean
 }
 
 declare module 'mdast-util-to-markdown' {
