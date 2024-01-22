@@ -1,8 +1,8 @@
 import type { GetPageResponse } from "@notionhq/client/build/src/api-endpoints";
-import { translateRichText } from "./translate";
 import { isFullPage } from "@notionhq/client";
+import type { PageTranslator } from ".";
 
-export function getTitle(pageResponse: GetPageResponse) {
+export function getTitle(this: PageTranslator, pageResponse: GetPageResponse) {
     if (!isFullPage(pageResponse)) {
         return
     }
@@ -17,5 +17,5 @@ export function getTitle(pageResponse: GetPageResponse) {
         return;
     }
 
-    return title.title.map((richText) => translateRichText(richText));
+    return this.translateRichText(title.title)
 }

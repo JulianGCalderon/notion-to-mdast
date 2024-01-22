@@ -8,8 +8,8 @@ import * as builder from "mdast-builder"
 export type Children = Node | Node[]
 
 export type Options = {
-    blockHandlers: Partial<BlockHandler>
-    richTextHandlers: Partial<RichTextItemHandler>
+    blockHandlers?: Partial<BlockHandlers>
+    richTextHandlers?: Partial<RichTextItemHandlers>
 }
 
 export type BlockHandlers = Record<BlockObjectResponse['type'], BlockHandler>
@@ -44,7 +44,7 @@ export class PageTranslator {
             if (!isFullBlock(blockResponse)) {
                 continue
             }
-            promises.push(this.translateBlocks(blockResponse))
+            promises.push(this.translateBlock(blockResponse))
         }
 
         return (await Promise.all(promises)).flat()
@@ -70,7 +70,7 @@ export class PageTranslator {
         return await handler.call(this, response)
     }
 
-    async translateBlocks(response: BlockObjectResponse | BlockObjectResponse[]): Promise<Children> {
+    async translateBlocks(response: BlockObjectResponse[]): Promise<Children> {
         if (!Array.isArray(response)) {
             return await this.translateBlock(response)
         }
@@ -79,7 +79,7 @@ export class PageTranslator {
             .then((children) => children.flat())
     }
 
-    async translateRichText(response: RichTextItemResponse | RichTextItemResponse[]): Promise<Children> {
+    async translateRichText(response: RichTextItemResponse[]): Promise<Children> {
         if (!Array.isArray(response)) {
             return await this.translateRichTextItem(response)
         }

@@ -110,18 +110,6 @@ export async function equation(this: PageTranslator, genericResponse: BlockObjec
     return builder.math(response.equation.expression)
 }
 
-export async function callout(this: PageTranslator, genericResponse: BlockObjectResponse) {
-    const response = genericResponse as CalloutBlockObjectResponse
-
-    const richText = response.callout.rich_text
-    const firstChild = builder.paragraph(await this.translateRichText(richText))
-
-    const remainingChildren = await this.translateChildren(response.id)
-    const children = [firstChild, ...remainingChildren]
-
-    return builder.callout(children)
-}
-
 export async function table(this: PageTranslator, genericResponse: BlockObjectResponse) {
     const rows = await this.translateChildren(genericResponse.id)
     return builder.table(undefined, rows)
