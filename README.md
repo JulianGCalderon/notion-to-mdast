@@ -59,9 +59,5 @@ bun run index.ts
     - [x] Synced block (as container)
     - [x] Column list and column (as container)
     - [ ] Child page
-    - ~~Template~~
-    - ~~Breadcrumb~~
-    - ~~Child database~~
-    - ~~Table of contents~~
 - [ ] Single page to file
 - [ ] Nested pages support
