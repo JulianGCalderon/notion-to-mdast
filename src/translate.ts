@@ -3,6 +3,7 @@ import * as builder from "mdast-builder"
 import type {
     BlockObjectResponse,
     BookmarkBlockObjectResponse,
+    BulletedListItemBlockObjectResponse,
     CalloutBlockObjectResponse,
     CodeBlockObjectResponse,
     DividerBlockObjectResponse,
@@ -16,6 +17,7 @@ import type {
     Heading3BlockObjectResponse,
     ImageBlockObjectResponse,
     LinkPreviewBlockObjectResponse,
+    NumberedListItemBlockObjectResponse,
     ParagraphBlockObjectResponse,
     PdfBlockObjectResponse,
     QuoteBlockObjectResponse,
@@ -94,6 +96,10 @@ async function translateBlock(blockResponse: GetBlockResponse): Promise<Node | N
             return translateDivider(blockResponse)
         case "toggle":
             return translateToggle(blockResponse)
+        case "bulleted_list_item":
+            return translateBulletedListItem(blockResponse)
+        case "numbered_list_item":
+            return translateNumberedListItem(blockResponse)
         case "image":
             return translateEmbed(blockResponse)
         case "video":
@@ -112,6 +118,27 @@ async function translateBlock(blockResponse: GetBlockResponse): Promise<Node | N
     }
 
     return []
+}
+
+// LIST SUPPORT
+
+async function translateBulletedListItem(bulletedListItemResponse: BulletedListItemBlockObjectResponse) {
+    const richText = bulletedListItemResponse.bulleted_list_item.rich_text
+
+    const itemChildren: Array<Node> = [builder.paragraph(translateRichTextArray(richText))]
+    itemChildren.push(...await translateChildren(bulletedListItemResponse.id))
+
+    return builder.list("unordered", builder.listItem(itemChildren))
+}
+
+
+async function translateNumberedListItem(numberedListItemResponse: NumberedListItemBlockObjectResponse) {
+    const richText = numberedListItemResponse.numbered_list_item.rich_text
+
+    const itemChildren: Array<Node> = [builder.paragraph(translateRichTextArray(richText))]
+    itemChildren.push(...await translateChildren(numberedListItemResponse.id))
+
+    return builder.list("ordered", builder.listItem(itemChildren))
 }
 
 // BLOCK SUPPORT
