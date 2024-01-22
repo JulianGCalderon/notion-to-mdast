@@ -45,9 +45,9 @@ bun run index.ts
     - [x] Table
     - [x] Callout (with ofm)
     - [x] Toggle blocks (as list item)
-    - [ ] Numbered list item
-    - [ ] Bulleted list item
-    - [ ] To do (with gfm)
+    - [x] Numbered list item
+    - [x] Bulleted list item
+    - [x] To do (with gfm)
     - [x] Divider
     - [x] Image
     - [x] Video

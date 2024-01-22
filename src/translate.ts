@@ -25,6 +25,7 @@ import type {
     TableBlockObjectResponse,
     TableRowBlockObjectResponse,
     TextRichTextItemResponse,
+    ToDoBlockObjectResponse,
     ToggleBlockObjectResponse,
     VideoBlockObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
@@ -100,6 +101,8 @@ async function translateBlock(blockResponse: GetBlockResponse): Promise<Node | N
             return translateBulletedListItem(blockResponse)
         case "numbered_list_item":
             return translateNumberedListItem(blockResponse)
+        case "to_do":
+            return translateToDo(blockResponse)
         case "image":
             return translateEmbed(blockResponse)
         case "video":
@@ -139,6 +142,16 @@ async function translateNumberedListItem(numberedListItemResponse: NumberedListI
     itemChildren.push(...await translateChildren(numberedListItemResponse.id))
 
     return builder.list("ordered", builder.listItem(itemChildren))
+}
+
+
+async function translateToDo(toDoResponse: ToDoBlockObjectResponse) {
+    const richText = toDoResponse.to_do.rich_text
+
+    const itemChildren: Array<Node> = [builder.paragraph(translateRichTextArray(richText))]
+    itemChildren.push(...await translateChildren(toDoResponse.id))
+
+    return builder.list("unordered", builder.taskListItem(itemChildren, toDoResponse.to_do.checked))
 }
 
 // BLOCK SUPPORT

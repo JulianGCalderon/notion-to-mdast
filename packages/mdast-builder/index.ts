@@ -1,6 +1,7 @@
 import type { Blockquote, Break, Code, Delete, Emphasis, Heading, Html, Image, InlineCode, Link, List, ListItem, Paragraph, Root, Strong, Table, TableCell, TableRow, Text, ThematicBreak } from "mdast"
 import type { InlineMath, Math } from "mdast-util-math"
 import type { Literal, Node, Parent } from "unist"
+import type { ListItem } from "mdast-util-gfm"
 
 export type Children = Node | Node[] | (() => Node | Node[])
 
@@ -88,6 +89,12 @@ export function list(ordered: ListType, kids: Children): List {
     } as List
 }
 export function listItem(kids: Children): ListItem { return parentNode("listItem", kids) as ListItem }
+export function taskListItem(kids: Children, checked: boolean) {
+    return {
+        ...parentNode("listItem", kids),
+        checked
+    }
+}
 
 // MATH
 export function math(expression: string): Math { return valueNode("math", expression) as Math }
