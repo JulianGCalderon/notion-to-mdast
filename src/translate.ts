@@ -259,7 +259,7 @@ function captionFromLink(linkResponse: LinkObjectResponse) {
 
 // RICH TEXT SUPPORT
 
-function textFromRichTextArray(richTextResponseArray: RichTextItemResponse[]) {
+export function textFromRichTextArray(richTextResponseArray: RichTextItemResponse[]) {
     return richTextResponseArray.map((richTextResponse) => richTextResponse.plain_text).join("")
 }
 
