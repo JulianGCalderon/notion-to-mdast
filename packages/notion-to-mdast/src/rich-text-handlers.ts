@@ -1,8 +1,13 @@
-/*
-export function text(genericResponse: Response) {
-    let text = mention.call(this, genericResponse)
+import type { EquationRichTextItemResponse, MentionRichTextItemResponse, RichTextItemResponse, TextRichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
+import type { PageTranslator } from "."
+import * as builder from "mdast-builder"
+import type { Node } from "mdast"
 
-    let link = textRichTextResponse.text.link
+export async function text(this: PageTranslator, genericResponse: RichTextItemResponse) {
+    let response = genericResponse as TextRichTextItemResponse
+    let text = await mention.call(this, response)
+
+    let link = response.text.link
     if (!link) {
         return text
     }
@@ -10,15 +15,14 @@ export function text(genericResponse: Response) {
     return builder.link(link.url, undefined, text)
 }
 
-export function equation(genericResponse: Response) {
+export async function equation(genericResponse: RichTextItemResponse) {
     const response = genericResponse as EquationRichTextItemResponse
 
-
-    return builder.inlineMath(equationRichTextResponse.equation.expression)
+    return builder.inlineMath(response.equation.expression)
 }
 
-export function mention(genericResponse: Response) {
-    const response = genericResponse as RichTextItemResponse
+export async function mention(genericResponse: RichTextItemResponse) {
+    const response = genericResponse as MentionRichTextItemResponse
 
     if (response.annotations.code) {
         return builder.inlineCode(response.plain_text)
@@ -37,4 +41,3 @@ export function mention(genericResponse: Response) {
 
     return text
 }
-*/

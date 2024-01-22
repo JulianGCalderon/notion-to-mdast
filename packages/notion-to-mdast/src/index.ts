@@ -5,24 +5,31 @@ import * as blockHandlers from "./block-handlers.ts"
 import * as richTextHandlers from "./rich-text-handlers.ts"
 import * as builder from "mdast-builder"
 
+export type Children = Node | Node[]
+
+export type Options = {
+    blockHandlers: Partial<BlockHandler>
+    richTextHandlers: Partial<RichTextItemHandler>
+}
+
+export type BlockHandlers = Record<BlockObjectResponse['type'], BlockHandler>
+export type RichTextItemHandlers = Record<RichTextItemResponse['type'], RichTextItemHandler>
+export type BlockHandler = (response: BlockObjectResponse) => Promise<Node | Node[]>
+export type RichTextItemHandler = (response: RichTextItemResponse) => Promise<Node | Node[]>
+
 export class PageTranslator {
     client: Client
     blockHandlers: Partial<BlockHandlers>
-    richTextHandlers: Partial<RichTextHandlers>
+    richTextHandlers: Partial<RichTextItemHandlers>
 
-    constructor(client: Client, customBlockHandlers?: Partial<Handlers>, customRichTextHandlers?: Partial<Handlers>) {
+    constructor(client: Client, options?: Options) {
         this.client = client
-        this.blockHandlers = { ...blockHandlers, ...customBlockHandlers }
-        this.richTextHandlers = { ...richTextHandlers, ...customRichTextHandlers }
+        this.blockHandlers = { ...blockHandlers, ...options?.blockHandlers }
+        this.richTextHandlers = { ...richTextHandlers, ...options?.richTextHandlers }
     }
 
     async translatePage(pageId: string): Promise<Root> {
-        const pageResponse = await this.client.pages.retrieve({
-            page_id: pageId
-        })
-
         const children = await this.translateChildren(pageId)
-
         return builder.root(children)
     }
 
@@ -43,46 +50,41 @@ export class PageTranslator {
         return (await Promise.all(promises)).flat()
     }
 
-    async translateBlock(response: BlockObjectResponse): Promise<Node[]> {
+    async translateBlock(response: BlockObjectResponse): Promise<Children> {
         const handler = this.blockHandlers[response.type]
-        if (!handler)
+        if (!handler) {
+            console.error("No handler for:", response.type)
             return []
+        }
 
-        const children = [await handler(response)]
-        return children.flat()
+        return await handler.call(this, response)
     }
 
 
-    async translateRichText(response: RichTextItemResponse): Promise<Node[]> {
+    async translateRichTextItem(response: RichTextItemResponse): Promise<Children> {
         const handler = this.richTextHandlers[response.type]
-        if (!handler)
+        if (!handler) {
             return []
-
-        const children = [await handler(response)]
-        return children.flat()
-    }
-
-    async translateBlocks(response: BlockObjectResponse | BlockObjectResponse[]): Promise<Node[]> {
-        if (!Array.isArray(response)) {
-            response = [response]
         }
 
-        const children = await Promise.all(response.map(this.translateBlock))
-        return children.flat()
+        return await handler.call(this, response)
     }
 
-    async translateRichTexts(response: RichTextItemResponse | RichTextItemResponse[]): Promise<Node[]> {
+    async translateBlocks(response: BlockObjectResponse | BlockObjectResponse[]): Promise<Children> {
         if (!Array.isArray(response)) {
-            response = [response]
+            return await this.translateBlock(response)
         }
 
-        const children = await Promise.all(response.map(this.translateRichText))
-        return children.flat()
+        return await Promise.all(response.map(this.translateBlock.bind(this)))
+            .then((children) => children.flat())
+    }
+
+    async translateRichText(response: RichTextItemResponse | RichTextItemResponse[]): Promise<Children> {
+        if (!Array.isArray(response)) {
+            return await this.translateRichTextItem(response)
+        }
+
+        return await Promise.all(response.map(this.translateRichTextItem.bind(this)))
+            .then((children) => children.flat())
     }
 }
-
-export type Children = Node | Node[]
-export type BlockHandlers = Record<BlockObjectResponse['type'], BlockHandler>
-export type RichTextHandlers = Record<RichTextItemResponse['type'], RichTextHandler>
-export type BlockHandler = (response: BlockObjectResponse) => Promise<Node | Node[]>
-export type RichTextHandler = (response: RichTextItemResponse) => Promise<Node | Node[]>
