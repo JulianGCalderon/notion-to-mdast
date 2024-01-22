@@ -90,10 +90,10 @@ async function translateBlock(blockResponse: GetBlockResponse): Promise<Node | N
             return translateTableRow(blockResponse)
         case "callout":
             return translateCallout(blockResponse)
-        case "toggle":
-            return translateToggle(blockResponse)
         case "divider":
             return translateDivider(blockResponse)
+        case "toggle":
+            return translateToggle(blockResponse)
         case "image":
             return translateEmbed(blockResponse)
         case "video":
@@ -157,11 +157,9 @@ async function translateQuote(quoteResponse: QuoteBlockObjectResponse) {
     const richText = quoteResponse
         .quote
         .rich_text
-    const quoteChildren: Array<Node> = [builder.paragraph(translateRichTextArray(richText))]
 
-    if (quoteResponse.has_children) {
-        quoteChildren.push(...await translateChildren(quoteResponse.id))
-    }
+    const quoteChildren: Array<Node> = [builder.paragraph(translateRichTextArray(richText))]
+    quoteChildren.push(...await translateChildren(quoteResponse.id))
 
     return builder.blockquote(quoteChildren)
 }
@@ -217,13 +215,15 @@ async function translateToggle(toggleBlockResponse: ToggleBlockObjectResponse) {
 
     const children: Array<Node> = [builder.paragraph(translateRichTextArray(richText))]
 
-    children.push(...await translateContainer(toggleBlockResponse))
+    children.push(...await translateChildren(toggleBlockResponse.id))
     return builder.list("unordered", builder.listItem(children))
 }
 
 // LINK SUPPORT
 
-type LinkObjectResponse = ImageBlockObjectResponse | VideoBlockObjectResponse | PdfBlockObjectResponse | FileBlockObjectResponse | EmbedBlockObjectResponse | BookmarkBlockObjectResponse | LinkPreviewBlockObjectResponse
+type LinkObjectResponse = ImageBlockObjectResponse | VideoBlockObjectResponse
+    | PdfBlockObjectResponse | FileBlockObjectResponse | EmbedBlockObjectResponse
+    | BookmarkBlockObjectResponse | LinkPreviewBlockObjectResponse
 
 function translateEmbed(linkResponse: LinkObjectResponse) {
     const url = urlFromLink(linkResponse)
