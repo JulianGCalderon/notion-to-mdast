@@ -1,7 +1,6 @@
 import type { Blockquote, Break, Code, Delete, Emphasis, Heading, Html, Image, InlineCode, Link, List, ListItem, Paragraph, Root, Strong, Table, TableCell, TableRow, Text, ThematicBreak } from "mdast"
 import type { InlineMath, Math } from "mdast-util-math"
 import type { Literal, Node, Parent } from "unist"
-import type { ListItem } from "mdast-util-gfm"
 
 export type Children = Node | Node[] | (() => Node | Node[])
 

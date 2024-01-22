@@ -1,19 +1,19 @@
 import type { List, ListItem, Parent, Root } from "mdast";
 import { CONTINUE, visit } from "unist-util-visit";
 
-export default function remarkListJoin() {
+export default function remarkListMerge() {
     return function(tree: Root) {
-        visit(tree, "list", joinerVisitor)
+        visit(tree, "list", mergerVisitor)
     }
 }
 
-function joinerVisitor(node: List, index?: number, parent?: Parent) {
-    if (!parent || !index) {
+function mergerVisitor(node: List, index?: number, parent?: Parent) {
+    if (!parent || index == undefined) {
         return CONTINUE
     }
 
     let toDelete = 0
-    while (shouldBeJoined(node, index + toDelete + 1, parent)) {
+    while (shouldBeMerged(node, index + toDelete + 1, parent)) {
         toDelete += 1
     }
 
@@ -25,7 +25,7 @@ function joinerVisitor(node: List, index?: number, parent?: Parent) {
     return CONTINUE
 }
 
-function shouldBeJoined(node: List, index: number, parent: Parent) {
+function shouldBeMerged(node: List, index: number, parent: Parent) {
     const adjacentNode = parent.children[index]
     return adjacentNode?.type == "list" && node.ordered == adjacentNode.ordered
 }
