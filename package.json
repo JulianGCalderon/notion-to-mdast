@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "export": "bun run scripts/export.ts",
+    "main": "bun run src/main.ts",
     "search": "bun run scripts/search.ts"
   },
   "workspaces": ["packages/*"],
@@ -27,6 +27,7 @@
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "remark-stringify": "^11.0.0",
+    "to-vfile": "^8.0.0",
     "unified": "^11.0.4",
     "unist-util-visit": "^5.0.0",
     "unist-util-visit-parents": "^6.0.1",

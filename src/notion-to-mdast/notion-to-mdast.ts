@@ -1,31 +1,25 @@
 import { iteratePaginatedAPI, type Client, isFullBlock, isFullPage } from "@notionhq/client"
 import type { BlockObjectResponse, GetPageResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
 import type { Node, Parent, Root, RootContent } from "mdast"
-import * as blockHandlers from "./block-handlers.ts"
-import * as richTextHandlers from "./rich-text-handlers.ts"
 import * as builder from "mdast-builder"
 
-export type Children = Node | Node[]
+import * as _blockHandlers from "./block-handlers.ts"
+import * as _richTextHandlers from "./rich-text-handlers.ts"
+const blockHandlers: Partial<BlockHandlers> = _blockHandlers
+const richTextHandlers: Partial<RichTextItemHandlers> = _richTextHandlers
 
-export type Options = {
-    blockHandlers?: Partial<BlockHandlers>
-    richTextHandlers?: Partial<RichTextItemHandlers>
-}
+export type Children = Node | Node[]
 
 export type BlockHandlers = Record<BlockObjectResponse['type'], BlockHandler>
 export type RichTextItemHandlers = Record<RichTextItemResponse['type'], RichTextItemHandler>
 export type BlockHandler = (response: BlockObjectResponse) => Promise<Node | Node[]>
 export type RichTextItemHandler = (response: RichTextItemResponse) => Promise<Node | Node[]>
 
-export class PageTranslator {
+export class NotionToMdast {
     client: Client
-    blockHandlers: Partial<BlockHandlers>
-    richTextHandlers: Partial<RichTextItemHandlers>
 
-    constructor(client: Client, options?: Options) {
+    constructor(client: Client) {
         this.client = client
-        this.blockHandlers = { ...blockHandlers, ...options?.blockHandlers }
-        this.richTextHandlers = { ...richTextHandlers, ...options?.richTextHandlers }
     }
 
     async translatePage(pageId: string): Promise<Root> {
@@ -51,7 +45,7 @@ export class PageTranslator {
     }
 
     async translateBlock(response: BlockObjectResponse): Promise<Children> {
-        const handler = this.blockHandlers[response.type]
+        const handler = blockHandlers[response.type]
         if (!handler) {
             console.error("No handler for:", response.type)
             return []
@@ -62,7 +56,7 @@ export class PageTranslator {
 
 
     async translateRichTextItem(response: RichTextItemResponse): Promise<Children> {
-        const handler = this.richTextHandlers[response.type]
+        const handler = richTextHandlers[response.type]
         if (!handler) {
             return []
         }
@@ -99,23 +93,5 @@ export class PageTranslator {
         const richText = response[response.type].rich_text
         const paragraph = builder.paragraph(await this.translateRichText(richText))
         node.children.push(paragraph)
-    }
-
-    async getTitle(pageResponse: GetPageResponse) {
-        if (!isFullPage(pageResponse)) {
-            return
-        }
-        const properties = pageResponse.properties
-
-        if (!("title" in properties)) {
-            return;
-        }
-        const title = properties.title;
-
-        if (title.type != "title") {
-            return;
-        }
-
-        return this.translateRichText(title.title)
     }
 }
