@@ -4,7 +4,6 @@ import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import remarkOfm from "remark-ofm"
 import remarkListMerge from "remark-list-merge";
-import * as builder from "mdast-builder"
 import { PageTranslator } from "../packages/notion-to-mdast";
 import { Client } from "@notionhq/client";
 import * as handlers from "../src/handlers.ts"
