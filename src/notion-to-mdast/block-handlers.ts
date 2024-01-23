@@ -131,9 +131,9 @@ export async function callout(this: NotionToMdast, response: BlockObjectResponse
 }
 
 export const image = translateEmbed
-export const video = translateEmbed
-export const pdf = translateEmbed
-export const embed = translateEmbed
+export const video = translateLink
+export const pdf = translateLink
+export const embed = translateLink
 export const link = translateLink
 export const file = translateLink
 export const bookmark = translateLink
