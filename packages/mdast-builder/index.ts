@@ -1,6 +1,5 @@
-import type { Blockquote, Break, Code, Delete, Emphasis, Heading, Html, Image, InlineCode, Link, List, ListItem, Paragraph, Root, Strong, Table, TableCell, TableRow, Text, ThematicBreak } from "mdast"
+import type { Blockquote, Break, Code, Delete, Emphasis, Heading, Html, Image, InlineCode, Link, List, ListItem, Literal, Node, Paragraph, Parent, Root, Strong, Table, TableCell, TableRow, Text, ThematicBreak } from "mdast"
 import type { InlineMath, Math } from "mdast-util-math"
-import type { Literal, Node, Parent } from "unist"
 
 export type Children = Node | Node[] | (() => Node | Node[])
 
@@ -19,6 +18,7 @@ function normalizeChildren(children?: Children): Node[] {
 function valueNode(type: string, value: unknown): Literal {
     return {
         type,
+        //@ts-ignore
         value,
     }
 }
@@ -26,6 +26,7 @@ function valueNode(type: string, value: unknown): Literal {
 function parentNode(type: string, kids?: Children): Parent {
     return {
         type,
+        //@ts-ignore
         children: normalizeChildren(kids)
     }
 }

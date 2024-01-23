@@ -1,43 +1,48 @@
 import type { BlockObjectResponse, CodeBlockObjectResponse, EquationBlockObjectResponse, ParagraphBlockObjectResponse, TableRowBlockObjectResponse, ToDoBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
 
 import * as builder from "mdast-builder"
-import { PageTranslator } from "."
+import { NotionToMdast } from "./notion-to-mdast"
 import { toString as nodeToString } from "mdast-util-to-string"
 
-export async function bulleted_list_item(this: PageTranslator, response: BlockObjectResponse) {
+export async function bulleted_list_item(this: NotionToMdast, response: BlockObjectResponse) {
     const item = builder.listItem([])
+
     this.addRichText(response, item)
     this.addChildren(response, item)
 
     return builder.list("unordered", item)
 }
 
+export const toggle = bulleted_list_item
 
-export async function numbered_list_item(this: PageTranslator, response: BlockObjectResponse) {
+export async function numbered_list_item(this: NotionToMdast, response: BlockObjectResponse) {
     const item = builder.listItem([])
+
     this.addRichText(response, item)
     this.addChildren(response, item)
 
     return builder.list("unordered", item)
 }
 
-export async function to_do(this: PageTranslator, genericResponse: BlockObjectResponse) {
+export async function to_do(this: NotionToMdast, genericResponse: BlockObjectResponse) {
     const response = genericResponse as ToDoBlockObjectResponse
     const item = builder.taskListItem([], response.to_do.checked)
+
     this.addRichText(response, item)
     this.addChildren(response, item)
 
     return builder.list("unordered", item)
 }
 
-export async function paragraph(this: PageTranslator, genericResponse: BlockObjectResponse) {
+
+export async function paragraph(this: NotionToMdast, genericResponse: BlockObjectResponse) {
     const response = genericResponse as ParagraphBlockObjectResponse
 
     const richText = response.paragraph.rich_text
     return builder.paragraph(await this.translateRichText(richText))
 }
 
-async function translateHeading(this: PageTranslator, depth: number, response: BlockObjectResponse) {
+async function translateHeading(this: NotionToMdast, depth: number, response: BlockObjectResponse) {
     const heading = builder.heading(depth + 1, [])
     this.addRichText(response, heading)
 
@@ -53,20 +58,20 @@ async function translateHeading(this: PageTranslator, depth: number, response: B
     return builder.list("unordered", item)
 }
 
-export async function heading_1(this: PageTranslator, response: BlockObjectResponse) {
+export async function heading_1(this: NotionToMdast, response: BlockObjectResponse) {
     return translateHeading.call(this, 1, response)
 }
 
-export async function heading_2(this: PageTranslator, response: BlockObjectResponse) {
+export async function heading_2(this: NotionToMdast, response: BlockObjectResponse) {
     return translateHeading.call(this, 2, response)
 }
 
-export async function heading_3(this: PageTranslator, response: BlockObjectResponse) {
+export async function heading_3(this: NotionToMdast, response: BlockObjectResponse) {
     return translateHeading.call(this, 3, response)
 }
 
 
-export async function code(this: PageTranslator, genericResponse: BlockObjectResponse) {
+export async function code(this: NotionToMdast, genericResponse: BlockObjectResponse) {
     const response = genericResponse as CodeBlockObjectResponse
 
     const language = response.code.language
@@ -78,7 +83,7 @@ export async function code(this: PageTranslator, genericResponse: BlockObjectRes
 }
 
 
-export async function quote(this: PageTranslator, response: BlockObjectResponse) {
+export async function quote(this: NotionToMdast, response: BlockObjectResponse) {
     const quote = builder.blockquote([])
 
     this.addRichText(response, quote)
@@ -88,18 +93,18 @@ export async function quote(this: PageTranslator, response: BlockObjectResponse)
 }
 
 
-export async function equation(this: PageTranslator, genericResponse: BlockObjectResponse) {
+export async function equation(this: NotionToMdast, genericResponse: BlockObjectResponse) {
     const response = genericResponse as EquationBlockObjectResponse
 
     return builder.math(response.equation.expression)
 }
 
-export async function table(this: PageTranslator, genericResponse: BlockObjectResponse) {
+export async function table(this: NotionToMdast, genericResponse: BlockObjectResponse) {
     const rows = await this.translateChildren(genericResponse.id)
     return builder.table(undefined, rows)
 }
 
-export async function table_row(this: PageTranslator, genericResponse: BlockObjectResponse) {
+export async function table_row(this: NotionToMdast, genericResponse: BlockObjectResponse) {
     const response = genericResponse as TableRowBlockObjectResponse
 
     let cells = []
@@ -115,13 +120,14 @@ export async function divider(_: BlockObjectResponse) {
     return builder.separator()
 }
 
-export async function toggle(this: PageTranslator, response: BlockObjectResponse) {
-    const item = builder.listItem([])
 
-    this.addRichText(response, item)
-    this.addChildren(response, item)
+export async function callout(this: NotionToMdast, response: BlockObjectResponse) {
+    const callout = builder.callout()
 
-    return builder.list("unordered", item)
+    this.addRichText(response, callout)
+    this.addChildren(response, callout)
+
+    return callout
 }
 
 export const image = translateEmbed
@@ -133,7 +139,7 @@ export const file = translateLink
 export const bookmark = translateLink
 export const link_preview = translateLink
 
-async function translateEmbed(this: PageTranslator, response: BlockObjectResponse) {
+async function translateEmbed(this: NotionToMdast, response: BlockObjectResponse) {
     const url = urlFromLink(response)
 
     const title = await titleFromLink.call(this, response)
@@ -141,7 +147,7 @@ async function translateEmbed(this: PageTranslator, response: BlockObjectRespons
     return builder.paragraph(builder.image(url, undefined, title))
 }
 
-async function translateLink(this: PageTranslator, response: BlockObjectResponse) {
+async function translateLink(this: NotionToMdast, response: BlockObjectResponse) {
     const url = urlFromLink(response)
 
     const caption = await titleFromLink.call(this, response)
@@ -157,7 +163,7 @@ function urlFromLink(linkResponse: BlockObjectResponse) {
         || link.url
 }
 
-async function titleFromLink(this: PageTranslator, linkResponse: BlockObjectResponse) {
+async function titleFromLink(this: NotionToMdast, linkResponse: BlockObjectResponse) {
     //@ts-ignore
     const link = linkResponse[linkResponse.type]
     return link["name"]
@@ -168,6 +174,6 @@ export const column_list = translateContainer
 export const column = translateContainer
 export const synced_block = translateContainer
 
-async function translateContainer(this: PageTranslator, response: BlockObjectResponse) {
+async function translateContainer(this: NotionToMdast, response: BlockObjectResponse) {
     return await this.translateChildren(response.id)
 }

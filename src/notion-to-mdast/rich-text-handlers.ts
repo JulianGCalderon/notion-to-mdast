@@ -1,9 +1,9 @@
 import type { EquationRichTextItemResponse, MentionRichTextItemResponse, RichTextItemResponse, TextRichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
-import type { PageTranslator } from "."
+import type { NotionToMdast } from "./notion-to-mdast.ts"
 import * as builder from "mdast-builder"
 import type { Node } from "mdast"
 
-export async function text(this: PageTranslator, genericResponse: RichTextItemResponse) {
+export async function text(this: NotionToMdast, genericResponse: RichTextItemResponse) {
     let response = genericResponse as TextRichTextItemResponse
     let text = await mention.call(this, response)
 
