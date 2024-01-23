@@ -1,4 +1,4 @@
-import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, CalloutBlockObjectResponse, CodeBlockObjectResponse, EquationBlockObjectResponse, NumberedListItemBlockObjectResponse, ParagraphBlockObjectResponse, QuoteBlockObjectResponse, TableRowBlockObjectResponse, ToDoBlockObjectResponse, ToggleBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
+import type { BlockObjectResponse, BulletedListItemBlockObjectResponse, CodeBlockObjectResponse, EquationBlockObjectResponse, NumberedListItemBlockObjectResponse, ParagraphBlockObjectResponse, QuoteBlockObjectResponse, TableRowBlockObjectResponse, ToDoBlockObjectResponse, ToggleBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
 
 import * as builder from "mdast-builder"
 import { PageTranslator } from "."
