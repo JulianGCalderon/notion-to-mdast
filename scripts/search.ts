@@ -1,10 +1,9 @@
 import { Client, isFullPage, iteratePaginatedAPI } from "@notionhq/client";
-import { toString } from "mdast-util-to-string";
-import { PageTranslator } from "notion-to-mdast";
+import { NotionToVFile } from "../src/notion-to-vfile/notion-to-file";
 
 
 const client = new Client({ auth: process.env.NOTION_API_KEY });
-const translator = new PageTranslator(client)
+const toVFile = new NotionToVFile(client)
 
 for await (const searchResponse of iteratePaginatedAPI(client.search, {
     filter: {
@@ -16,7 +15,7 @@ for await (const searchResponse of iteratePaginatedAPI(client.search, {
         continue
     }
 
-    const title = toString(await translator.getTitle(searchResponse))
+    const title = await toVFile.getTitle(searchResponse)
     const pageInfo = {
         title,
         id: searchResponse.id,

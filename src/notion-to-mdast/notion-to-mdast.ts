@@ -1,5 +1,5 @@
-import { iteratePaginatedAPI, type Client, isFullBlock, isFullPage } from "@notionhq/client"
-import type { BlockObjectResponse, GetPageResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
+import { iteratePaginatedAPI, type Client, isFullBlock } from "@notionhq/client"
+import type { BlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
 import type { Node, Parent, Root, RootContent } from "mdast"
 import * as builder from "mdast-builder"
 

@@ -1,6 +1,5 @@
 import { Client } from "@notionhq/client";
 import type { Root } from "mdast";
-import { NotionToMdast } from "./notion-to-mdast/notion-to-mdast.ts";
 import { unified } from "unified"
 import remarkStringify from "remark-stringify"
 import remarkMath from "remark-math";
@@ -8,9 +7,10 @@ import remarkGfm from "remark-gfm";
 import remarkOfm from "remark-ofm"
 import remarkListMerge from "remark-list-merge";
 import remarkFrontmatter from "remark-frontmatter";
-import { NotionToVFile } from "./notion-to-vfile/notion-to-file.ts";
 import { write } from "to-vfile";
 import { mkdir, rm } from "node:fs/promises";
+import { NotionToMdast } from "./notion-to-mdast/notion-to-mdast";
+import { NotionToVFile } from "./notion-to-vfile/notion-to-file";
 
 require("dotenv").config();
 
