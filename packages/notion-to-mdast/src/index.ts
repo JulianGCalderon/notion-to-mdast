@@ -29,11 +29,6 @@ export class PageTranslator {
     }
 
     async translatePage(pageId: string): Promise<Root> {
-        // const pageResponse = await this.client.pages.retrieve({
-        //     page_id: pageId
-        // })
-        // const title = toString(await this.getTitle(pageResponse))
-
         const children = await this.translateChildren(pageId)
         return builder.root(children)
     }
