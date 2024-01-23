@@ -1,6 +1,6 @@
 import { iteratePaginatedAPI, type Client, isFullBlock, isFullPage } from "@notionhq/client"
 import type { BlockObjectResponse, GetPageResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
-import type { Node, Root } from "mdast"
+import type { Node, Parent, Root, RootContent } from "mdast"
 import * as blockHandlers from "./block-handlers.ts"
 import * as richTextHandlers from "./rich-text-handlers.ts"
 import * as builder from "mdast-builder"
@@ -29,18 +29,13 @@ export class PageTranslator {
     }
 
     async translatePage(pageId: string): Promise<Root> {
-        const pageResponse = await this.client.pages.retrieve({
-            page_id: pageId
-        })
+        // const pageResponse = await this.client.pages.retrieve({
+        //     page_id: pageId
+        // })
+        // const title = toString(await this.getTitle(pageResponse))
 
         const children = await this.translateChildren(pageId)
-
-        const title = await this.getTitle(pageResponse)
-        if (title) {
-            return builder.rootWithTitle(1, title, children)
-        } else {
-            return builder.root(children)
-        }
+        return builder.root(children)
     }
 
     async translateChildren(blockId: string): Promise<Node[]> {
@@ -98,6 +93,18 @@ export class PageTranslator {
             .then((children) => children.flat())
     }
 
+    async addChildren(response: BlockObjectResponse, node: Parent) {
+        //@ts-ignore
+        const children: RootContent[] = await this.translateChildren(response.id)
+        node.children.push(...children)
+    }
+
+    async addRichText(response: BlockObjectResponse, node: Parent) {
+        //@ts-ignore
+        const richText = response[response.type].rich_text
+        const paragraph = builder.paragraph(await this.translateRichText(richText))
+        node.children.push(paragraph)
+    }
 
     async getTitle(pageResponse: GetPageResponse) {
         if (!isFullPage(pageResponse)) {

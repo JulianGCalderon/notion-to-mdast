@@ -92,7 +92,7 @@ export function taskListItem(kids: Children, checked: boolean) {
     return {
         ...parentNode("listItem", kids),
         checked
-    }
+    } as ListItem
 }
 
 // MATH

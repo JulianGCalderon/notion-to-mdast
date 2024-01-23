@@ -4,41 +4,30 @@ import * as builder from "mdast-builder"
 import { PageTranslator } from "."
 import { toString as nodeToString } from "mdast-util-to-string"
 
-export async function bulleted_list_item(this: PageTranslator, genericResponse: BlockObjectResponse) {
-    const response = genericResponse as BulletedListItemBlockObjectResponse
+export async function bulleted_list_item(this: PageTranslator, response: BlockObjectResponse) {
+    const item = builder.listItem([])
+    this.addRichText(response, item)
+    this.addChildren(response, item)
 
-    const richText = response.bulleted_list_item.rich_text
-    const firstChild = builder.paragraph(await this.translateRichText(richText))
-
-    const remainingChildren = await this.translateChildren(response.id)
-    const children = [firstChild, ...remainingChildren]
-
-    return builder.list("unordered", builder.listItem(children))
+    return builder.list("unordered", item)
 }
 
 
-export async function numbered_list_item(this: PageTranslator, genericResponse: BlockObjectResponse) {
-    const response = genericResponse as NumberedListItemBlockObjectResponse
+export async function numbered_list_item(this: PageTranslator, response: BlockObjectResponse) {
+    const item = builder.listItem([])
+    this.addRichText(response, item)
+    this.addChildren(response, item)
 
-    const richText = response.numbered_list_item.rich_text
-    const firstChild = builder.paragraph(await this.translateRichText(richText))
-
-    const remainingChildren = await this.translateChildren(response.id)
-    const children = [firstChild, ...remainingChildren]
-
-    return builder.list("ordered", builder.listItem(children))
+    return builder.list("unordered", item)
 }
 
 export async function to_do(this: PageTranslator, genericResponse: BlockObjectResponse) {
     const response = genericResponse as ToDoBlockObjectResponse
+    const item = builder.taskListItem([], response.to_do.checked)
+    this.addRichText(response, item)
+    this.addChildren(response, item)
 
-    const richText = response.to_do.rich_text
-    const firstChild = builder.paragraph(await this.translateRichText(richText))
-
-    const remainingChildren = await this.translateChildren(response.id)
-    const children = [firstChild, ...remainingChildren]
-
-    return builder.list("unordered", builder.taskListItem(children, response.to_do.checked))
+    return builder.list("unordered", item)
 }
 
 export async function paragraph(this: PageTranslator, genericResponse: BlockObjectResponse) {
@@ -49,21 +38,19 @@ export async function paragraph(this: PageTranslator, genericResponse: BlockObje
 }
 
 async function translateHeading(this: PageTranslator, depth: number, response: BlockObjectResponse) {
-    //@ts-ignore
-    const richText = response[response.type].rich_text
+    const heading = builder.heading(depth + 1, [])
+    this.addRichText(response, heading)
+
     //@ts-ignore
     const isToggleable = response[response.type].is_toggleable
-
-    const phrasingContent = await this.translateRichText(richText)
-    const heading = builder.heading(depth + 1, phrasingContent)
     if (!isToggleable) {
         return heading
     }
 
-    const remainingChildren = await this.translateChildren(response.id)
-    const children = [heading, ...remainingChildren]
+    const item = builder.listItem([heading])
+    this.addChildren(response, item)
 
-    return builder.list("unordered", builder.listItem(children))
+    return builder.list("unordered", item)
 }
 
 export async function heading_1(this: PageTranslator, response: BlockObjectResponse) {
@@ -91,16 +78,13 @@ export async function code(this: PageTranslator, genericResponse: BlockObjectRes
 }
 
 
-export async function quote(this: PageTranslator, genericResponse: BlockObjectResponse) {
-    const response = genericResponse as QuoteBlockObjectResponse
+export async function quote(this: PageTranslator, response: BlockObjectResponse) {
+    const quote = builder.blockquote([])
 
-    const richText = response.quote.rich_text
-    const firstChild = builder.paragraph(await this.translateRichText(richText))
+    this.addRichText(response, quote)
+    this.addChildren(response, quote)
 
-    const remainingChildren = await this.translateChildren(response.id)
-    const children = [firstChild, ...remainingChildren]
-
-    return builder.blockquote(children)
+    return quote
 }
 
 
@@ -131,16 +115,13 @@ export async function divider(_: BlockObjectResponse) {
     return builder.separator()
 }
 
-export async function toggle(this: PageTranslator, genericResponse: BlockObjectResponse) {
-    const response = genericResponse as ToggleBlockObjectResponse
+export async function toggle(this: PageTranslator, response: BlockObjectResponse) {
+    const item = builder.listItem([])
 
-    const richText = response.toggle.rich_text
-    const firstChild = builder.paragraph(await this.translateRichText(richText))
+    this.addRichText(response, item)
+    this.addChildren(response, item)
 
-    const remainingChildren = await this.translateChildren(response.id)
-    const children = [firstChild, ...remainingChildren]
-
-    return builder.list("unordered", builder.listItem(children))
+    return builder.list("unordered", item)
 }
 
 export const image = translateEmbed
