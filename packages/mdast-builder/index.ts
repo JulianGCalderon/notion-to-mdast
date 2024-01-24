@@ -1,5 +1,6 @@
 import type { Blockquote, Break, Code, Delete, Emphasis, Heading, Html, Image, InlineCode, Link, List, ListItem, Literal, Node, Paragraph, Parent, Root, Strong, Table, TableCell, TableRow, Text, ThematicBreak } from "mdast"
 import type { InlineMath, Math } from "mdast-util-math"
+import type { Callout, InternalLink } from "remark-ofm"
 
 export type Children = Node | Node[] | (() => Node | Node[])
 
@@ -101,4 +102,7 @@ export function math(expression: string): Math { return valueNode("math", expres
 export function inlineMath(expression: string): InlineMath { return valueNode("inlineMath", expression) as InlineMath }
 
 // OFM
-export function callout(kids?: Children) { return parentNode("callout", kids) }
+export function callout(kids?: Children): Callout { return parentNode("callout", kids) as Callout }
+// export function internalLink(url: string, embed: "embed" | "link", title: string = "", kids?: Children): InternalLink {
+//     return { ...parentNode("internalLink", kids), embed, url, title } as InternalLink
+// }

@@ -11,6 +11,7 @@ import { write } from "to-vfile";
 import { mkdir, rm } from "node:fs/promises";
 import { NotionToMdast } from "./notion-to-mdast/notion-to-mdast";
 import { NotionToVFile } from "./notion-to-vfile/notion-to-file";
+import loadChilds from "./load-childs/load-childs";
 
 require("dotenv").config();
 
@@ -28,6 +29,7 @@ let pageFile = await notionToVFile.translatePage(process.env.BASE_DIR!, process.
 
 pageTree = await unified()
     .use(remarkListMerge)
+    .use(loadChilds)
     .run(pageTree, pageFile) as Root
 
 const pageString = unified()

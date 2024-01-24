@@ -3,6 +3,8 @@ import type { BlockObjectResponse, RichTextItemResponse } from "@notionhq/client
 import type { Node, Parent, Root, RootContent } from "mdast"
 import * as builder from "mdast-builder"
 
+require("./mdast-data.ts")
+
 import * as _blockHandlers from "./block-handlers.ts"
 import * as _richTextHandlers from "./rich-text-handlers.ts"
 const blockHandlers: Partial<BlockHandlers> = _blockHandlers

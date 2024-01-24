@@ -1,8 +1,11 @@
-import type { BlockObjectResponse, CodeBlockObjectResponse, EquationBlockObjectResponse, ParagraphBlockObjectResponse, TableRowBlockObjectResponse, ToDoBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
+import type { BlockObjectResponse, BookmarkBlockObjectResponse, ChildPageBlockObjectResponse, CodeBlockObjectResponse, EmbedBlockObjectResponse, EquationBlockObjectResponse, FileBlockObjectResponse, ImageBlockObjectResponse, ParagraphBlockObjectResponse, PdfBlockObjectResponse, TableRowBlockObjectResponse, ToDoBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
 
 import * as builder from "mdast-builder"
 import { NotionToMdast } from "./notion-to-mdast"
-import { toString as nodeToString } from "mdast-util-to-string"
+import { toString as nodeToString, toString } from "mdast-util-to-string"
+import type { Node } from "mdast"
+import { NotionToVFile } from "../notion-to-vfile/notion-to-file"
+import { isFullPage } from "@notionhq/client"
 
 export async function bulleted_list_item(this: NotionToMdast, response: BlockObjectResponse) {
     const item = builder.listItem([])
@@ -130,44 +133,93 @@ export async function callout(this: NotionToMdast, response: BlockObjectResponse
     return callout
 }
 
-export const image = translateEmbed
-export const video = translateLink
-export const pdf = translateLink
-export const embed = translateLink
-export const link = translateLink
-export const file = translateLink
-export const bookmark = translateLink
-export const link_preview = translateLink
+export const image = translateMedia
+export const video = translateMedia
 
-async function translateEmbed(this: NotionToMdast, response: BlockObjectResponse) {
-    const url = urlFromLink(response)
+export async function translateMedia(this: NotionToMdast, response: BlockObjectResponse) {
+    // @ts-ignore
+    const innerObject = response[response.type]
 
-    const title = await titleFromLink.call(this, response)
+    let url
+    switch (innerObject.type) {
+        case "file":
+            url = innerObject.file.url
+            break
+        case "external":
+            url = innerObject.external.url
+            break
+    }
 
-    return builder.paragraph(builder.image(url, undefined, title))
+    const link = builder.paragraph(builder.image(url, undefined, url))
+    const caption = builder.paragraph(await this.translateRichText(innerObject.caption))
+
+    return [link, caption]
 }
 
-async function translateLink(this: NotionToMdast, response: BlockObjectResponse) {
-    const url = urlFromLink(response)
+export async function pdf(this: NotionToMdast, genericResponse: BlockObjectResponse) {
+    const response = genericResponse as PdfBlockObjectResponse
 
-    const caption = await titleFromLink.call(this, response)
-    const title = builder.text(caption || url)
+    let url
+    switch (response.pdf.type) {
+        case "file":
+            url = response.pdf.file.url
+            break
+        case "external":
+            url = response.pdf.external.url
+            break
+    }
 
-    return builder.paragraph(builder.link(url, undefined, title))
+    const link = builder.paragraph(builder.link(url, undefined, builder.text(url)))
+    const caption = builder.paragraph(await this.translateRichText(response.pdf.caption))
+
+    return [link, caption]
 }
 
-function urlFromLink(linkResponse: BlockObjectResponse) {
+export async function file(this: NotionToMdast, genericResponse: BlockObjectResponse) {
+    const response = genericResponse as FileBlockObjectResponse
+
+    const name = response.file.name
+
+    let url
+    switch (response.file.type) {
+        case "file":
+            url = response.file.file.url
+            break
+        case "external":
+            url = response.file.external.url
+            break
+    }
+
+    const link = builder.paragraph(builder.link(url, undefined, builder.text(name)))
+    const caption = builder.paragraph(await this.translateRichText(response.file.caption))
+
+    return [link, caption]
+}
+
+
+export async function embed(this: NotionToMdast, genericResponse: BlockObjectResponse) {
+    const response = genericResponse as EmbedBlockObjectResponse
+
+    const htmlCode = `<iframe src=${response.embed.url}></iframe>`
+    const embed = builder.paragraph(builder.html(htmlCode))
+
+    const caption = builder.paragraph(await this.translateRichText(response.embed.caption))
+
+    return [embed, caption]
+}
+
+export const link_preview = translateExternalLink
+export const bookmark = translateExternalLink
+
+async function translateExternalLink(this: NotionToMdast, response: BlockObjectResponse) {
     //@ts-ignore
-    const link = linkResponse[linkResponse.type]
-    return link[link.type]?.url
-        || link.url
-}
+    const innerObject = response[response.type]
+    const url = innerObject.url
 
-async function titleFromLink(this: NotionToMdast, linkResponse: BlockObjectResponse) {
-    //@ts-ignore
-    const link = linkResponse[linkResponse.type]
-    return link["name"]
-        || nodeToString(await this.translateRichText(link["caption"]))
+    const link = builder.paragraph(builder.link(url, undefined, builder.text(url)))
+    const caption = builder.paragraph(await this.translateRichText(innerObject.caption))
+
+    return [link, caption]
 }
 
 export const column_list = translateContainer
@@ -176,4 +228,24 @@ export const synced_block = translateContainer
 
 async function translateContainer(this: NotionToMdast, response: BlockObjectResponse) {
     return await this.translateChildren(response.id)
+}
+
+export async function child_page(this: NotionToMdast, genericResponse: BlockObjectResponse) {
+    const response = genericResponse as ChildPageBlockObjectResponse
+
+    const pageReponse = await this.client.pages.retrieve({
+        page_id: response.id
+    })
+
+    let url
+    if (!isFullPage(pageReponse)) {
+        url = pageReponse.id
+    } else {
+        url = pageReponse.url
+    }
+
+    const link = builder.link(url, undefined, builder.text(response.child_page.title))
+    link.data = { child: { id: response.id } }
+
+    return builder.paragraph(link)
 }
