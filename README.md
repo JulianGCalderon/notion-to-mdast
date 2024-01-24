@@ -35,7 +35,7 @@ bun run index.ts
 
 ## Roadmap
 
-- [ ] Single page to stdout
+- [x] Single page to stdout
     - [x] Paragraph
     - [x] Mention
     - [x] Headings
@@ -58,6 +58,7 @@ bun run index.ts
     - [x] Link Preview
     - [x] Synced block (as container)
     - [x] Column list and column (as container)
-    - [ ] Child page
-- [ ] Single page to file
-- [ ] Nested pages support
+    - [x] Child page
+- [x] Single page to file
+- [x] Nested pages support
+- [ ] Download assets

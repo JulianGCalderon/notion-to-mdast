@@ -59,7 +59,3 @@ async function migrate(baseDir: string, pageId: string) {
 
 migrate(process.env.BASE_DIR!, process.env.PAGE_ID!)
 
-
-
-
-
