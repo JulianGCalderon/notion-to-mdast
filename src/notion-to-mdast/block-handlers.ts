@@ -1,10 +1,8 @@
-import type { BlockObjectResponse, BookmarkBlockObjectResponse, ChildPageBlockObjectResponse, CodeBlockObjectResponse, EmbedBlockObjectResponse, EquationBlockObjectResponse, FileBlockObjectResponse, ImageBlockObjectResponse, ParagraphBlockObjectResponse, PdfBlockObjectResponse, TableRowBlockObjectResponse, ToDoBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
+import type { BlockObjectResponse, ChildPageBlockObjectResponse, CodeBlockObjectResponse, EmbedBlockObjectResponse, EquationBlockObjectResponse, FileBlockObjectResponse, ParagraphBlockObjectResponse, PdfBlockObjectResponse, TableRowBlockObjectResponse, ToDoBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
 
 import * as builder from "mdast-builder"
 import { NotionToMdast } from "./notion-to-mdast"
-import { toString as nodeToString, toString } from "mdast-util-to-string"
-import type { Node } from "mdast"
-import { NotionToVFile } from "../notion-to-vfile/notion-to-file"
+import { toString as nodeToString } from "mdast-util-to-string"
 import { isFullPage } from "@notionhq/client"
 
 export async function bulleted_list_item(this: NotionToMdast, response: BlockObjectResponse) {
