@@ -30,7 +30,7 @@ PAGE_ID=********
 To run:
 
 ```bash
-bun run index.ts
+bun run main
 ```
 
 ## Roadmap
