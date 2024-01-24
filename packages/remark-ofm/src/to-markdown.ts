@@ -36,14 +36,33 @@ function prefixWithLessThan(value: string, _line: number, blank: boolean) {
     return '>' + (blank ? '' : ' ') + value
 }
 
-function internalLink(node: Node, _: Parent | undefined, state: State, info: Info): string {
-    let linkNode = node as InternalLink
+function internalLink(genericNode: Node, _: Parent | undefined, state: State, info: Info): string {
+    let node = genericNode as InternalLink
 
     const exit = state.enter('internalLink')
     const tracker = state.createTracker(info)
 
     let value = tracker.move("[[")
-    value += tracker.move("PLACEHOLDER")
+    value += tracker.move(
+        state.safe(node.url, {
+            before: "[[",
+            after: node.children ? '|' : ']',
+            ...tracker.current()
+        })
+    )
+
+    if (node.children) {
+        value += tracker.move("|")
+
+        // @ts-ignore
+        value += tracker.move(state.containerPhrasing(node, {
+            before: "|",
+            after: ']',
+            ...tracker.current()
+        })
+        )
+    }
+
     value += tracker.move("]]")
 
     exit()

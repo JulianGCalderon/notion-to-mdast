@@ -13,7 +13,7 @@ export class NotionToVFile {
         this.toMdast = new NotionToMdast(client)
     }
 
-    async translatePage(baseDir: string, pageId: string): Promise<VFile> {
+    async translatePage(pageId: string, baseDir: string): Promise<VFile> {
         const pageResponse = await this.client.pages.retrieve({
             page_id: pageId
         })

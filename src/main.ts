@@ -12,6 +12,7 @@ import { mkdir, rm } from "node:fs/promises";
 import { NotionToMdast } from "./notion-to-mdast/notion-to-mdast";
 import { NotionToVFile } from "./notion-to-vfile/notion-to-file";
 import loadChilds from "./load-childs/load-childs";
+import { join } from "path";
 
 require("dotenv").config();
 
@@ -22,27 +23,43 @@ const client = new Client({
 });
 
 const notionToMdast = new NotionToMdast(client)
-let pageTree = await notionToMdast.translatePage(process.env.PAGE_ID!)
-
 const notionToVFile = new NotionToVFile(client)
-let pageFile = await notionToVFile.translatePage(process.env.BASE_DIR!, process.env.PAGE_ID!)
 
-pageTree = await unified()
+const runProcessor = unified()
     .use(remarkListMerge)
-    .use(loadChilds)
-    .run(pageTree, pageFile) as Root
-
-const pageString = unified()
+    .use(loadChilds);
+const stringifyProcessor = unified()
     .use(remarkStringify, { emphasis: "_" })
     .use(remarkMath)
     .use(remarkGfm)
     .use(remarkOfm)
-    .use(remarkFrontmatter)
-    .stringify(pageTree)
+    .use(remarkFrontmatter);
 
-if (pageFile.dirname)
-    await mkdir(pageFile.dirname, { recursive: true })
+async function migrate(baseDir: string, pageId: string) {
+    let pageFile = await notionToVFile.translatePage(pageId, baseDir)
+    let pageTree = await notionToMdast.translatePage(pageId)
 
-pageFile.value = pageString
+    pageTree = await runProcessor
+        .run(pageTree, pageFile) as Root
 
-write(pageFile)
+    const pageString = stringifyProcessor
+        .stringify(pageTree)
+
+    if (pageFile.dirname)
+        await mkdir(pageFile.dirname, { recursive: true })
+
+    pageFile.value = pageString
+
+    write(pageFile)
+
+    for (const child of pageFile.data.childs || []) {
+        migrate(join(pageFile.dirname || "", pageFile.stem || ""), child)
+    }
+}
+
+migrate(process.env.BASE_DIR!, process.env.PAGE_ID!)
+
+
+
+
+
