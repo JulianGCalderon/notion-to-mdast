@@ -15,8 +15,8 @@ const client = new Client({
     auth: process.env.NOTION_API_KEY,
 });
 
-const xxx = new ToMdast(client)
-const root = await xxx.translatePage(process.env.PAGE_ID!) as Root
+const toMdast = new ToMdast(client)
+const root = await toMdast.translatePage(process.env.PAGE_ID!) as Root
 
 const content = unified()
     .use(remarkStringify, { emphasis: "_" })

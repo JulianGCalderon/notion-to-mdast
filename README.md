@@ -1,6 +1,6 @@
 # notion-to-mdast
 
-This project translates responses from the notion API into a mdast (markdown
+This project translates responses from the notion API into mdast (markdown
 abstract syntax tree)
 
 ## Motivation
@@ -13,7 +13,7 @@ This library exposes the `ToMdast` class, which receives a notion client and
 provides utilities for converting pages (or blocks) into a syntax tree.
 
 ```typescript
-ToMdast: new(client: Client, options?: Options)
+new ToMdast(client: Client, options?: Options)
 ```
 
 With options, the handles for notion types can be replaced
@@ -31,18 +31,37 @@ export type RichTextHandle = (this: ToMdast, response: RichTextItemResponse) => 
 ```
 
 Handles are functions which receive a `BlockObjectRespose` and return the
-translated node.
+translated node. See [handle](src/handle) for reference
 
 To convert a page, we can use:
 
 ```typescript
-ToMdast: translatePage(pageId: string): Promise<Node>
+ToMdast.translatePage(pageId: string): Promise<Node>
 ```
+
+## Example
 
 After the translation, the `unified` ecosystem can be used to transform/compile
 the syntax tree into the desired format
 
-## Example
+```typescript
+const client = new Client({
+    auth: process.env.NOTION_API_KEY,
+});
+
+const toMdast = new ToMdast(client)
+const root = await toMdast.translatePage(process.env.PAGE_ID!) as Root
+
+const content = unified()
+    .use(remarkStringify, { emphasis: "_" })
+    .use(remarkMath)
+    .use(remarkGfm)
+    .use(remarkDirective)
+    .use(remarkFrontmatter)
+    .stringify(root)
+
+console.log(content)
+```
 
 ## Script
 
