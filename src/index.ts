@@ -1,7 +1,7 @@
-import { type Client, iteratePaginatedAPI, isFullBlock } from "@notionhq/client"
+import { type Client, iteratePaginatedAPI, isFullBlock, isFullPage } from "@notionhq/client"
 import type { BlockObjectResponse, PartialBlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
 
-import type { Node } from "mdast"
+import type { Node, Yaml } from "mdast"
 import { u } from "unist-builder"
 
 import { unified } from "unified"
@@ -9,26 +9,51 @@ import remarkListMerge from "./transformer/list-merge"
 
 import * as blockHandles from "./handle/block"
 import * as richTextHandles from "./handle/richtext"
-import type { BlockHandles, Options, RichTextHandles } from "./types"
+import * as propertyHandles from "./handle/property"
+import type { BlockHandles, Options, PropertyHandles, RichTextHandles } from "./types"
 
 export class ToMdast {
     client: Client
     blockHandles: Partial<BlockHandles>
     richTextHandles: RichTextHandles
+    propertyHandles: Partial<PropertyHandles>
 
     constructor(client: Client, options?: Options) {
         this.client = client
         this.blockHandles = { ...blockHandles, ...options?.blockHandles }
         this.richTextHandles = { ...richTextHandles, ...options?.richTextHandles }
+        this.propertyHandles = { ...propertyHandles, ...options?.propertyHandles }
     }
 
     async translatePage(pageId: string): Promise<Node> {
-        const children = await this.translateChildren(pageId)
+        const metadata = await this.translateMetadata(pageId)
+        const children = [...metadata, ...await this.translateChildren(pageId)]
+
         const root = u("root", children)
 
         return await unified()
             .use(remarkListMerge)
             .run(root)
+    }
+
+    async translateMetadata(pageId: string): Promise<Yaml[]> {
+        const response = await this.client.pages.retrieve({ page_id: pageId })
+        if (!isFullPage(response)) {
+            return []
+        }
+
+        const promises = Object.entries(response.properties).map(async ([key, value]) => {
+            const handle = this.propertyHandles[value.type]
+            if (!handle) {
+                console.error("No handler for property:", value.type)
+                return []
+            }
+
+            const content = await handle.call(this, value)
+            return u("yaml", { value: `${key}: ${content}` })
+        })
+
+        return (await Promise.all(promises)).flat()
     }
 
     async translateChildren(blockId: string): Promise<Node[]> {
@@ -53,7 +78,7 @@ export class ToMdast {
 
         const handler = this.blockHandles[response.type]
         if (!handler) {
-            console.error("No handler for:", response.type)
+            console.error("No handler for block:", response.type)
             return []
         }
 

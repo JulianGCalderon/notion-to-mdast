@@ -47,15 +47,23 @@ Customize the output of the syntax tree
 export type Options = {
     blockHandles?: Partial<BlockHandles>
     richTextHandles?: Partial<RichTextHandles>
+    propertyHandles?: Partial<PropertyHandles>
 }
 
-export type BlockHandles = Record<BlockObjectResponse['type'], BlockHandle>
-export type RichTextHandles = Record<RichTextItemResponse['type'], RichTextHandle>
 export type BlockHandle = (this: ToMdast, response: BlockObjectResponse) => Promise<Node | Node[]>
+export type BlockHandles = Record<BlockObjectResponse['type'], BlockHandle>
+
 export type RichTextHandle = (this: ToMdast, response: RichTextItemResponse) => Promise<Node>
+export type RichTextHandles = Record<RichTextItemResponse['type'], RichTextHandle>
+
+export type PropertyResponse = PageObjectResponse['properties'][keyof PageObjectResponse['properties']]
+export type PropertyHandle = (this: ToMdast, response: PropertyResponse) => Promise<string>
+export type PropertyHandles = Record<PropertyResponse['type'], PropertyHandle>
 ```
 
 A handle is a function that takes in a response and returns a node or an array of nodes. The `this` context is the `ToMdast` instance. With `Options` the handles for each block type and rich text type can be customized. See [handles](src/handles.ts) for the default handles.
+
+The metadata of the page is obtained from the page properties, and can also be customized with handles.
 
 ## Roadmap
 
@@ -82,4 +90,4 @@ A handle is a function that takes in a response and returns a node or an array o
 - [x] Synced block (as container)
 - [x] Column list and column (as container)
 - [x] Child page (as link)
-- [ ] Metadata
+- [x] Metadata

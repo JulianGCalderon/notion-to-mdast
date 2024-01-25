@@ -6,7 +6,6 @@
     "translate": "bun run scripts/translate.ts",
     "search": "bun run scripts/search.ts"
   },
-  "workspaces": ["packages/*"],
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -18,23 +17,19 @@
     "@types/mdast": "^4.0.3",
     "@types/unist": "^3.0.2",
     "dotenv": "^16.3.2",
+    "mdast-util-frontmatter": "^2.0.1",
     "mdast-util-gfm": "^3.0.0",
     "mdast-util-gfm-task-list-item": "^2.0.0",
     "mdast-util-math": "^3.0.0",
     "mdast-util-to-markdown": "^2.1.0",
     "mdast-util-to-string": "^4.0.0",
-    "path": "^0.12.7",
     "remark-directive": "^3.0.0",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "remark-stringify": "^11.0.0",
-    "to-vfile": "^8.0.0",
     "unified": "^11.0.4",
     "unist-builder": "^4.0.0",
-    "unist-util-is": "^6.0.0",
-    "unist-util-visit": "^5.0.0",
-    "unist-util-visit-parents": "^6.0.1",
-    "vfile": "^6.0.1"
+    "unist-util-visit": "^5.0.0"
   }
 }
