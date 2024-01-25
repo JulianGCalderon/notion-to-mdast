@@ -61,7 +61,7 @@ export type PropertyHandle = (this: ToMdast, response: PropertyResponse) => Prom
 export type PropertyHandles = Record<PropertyResponse['type'], PropertyHandle>
 ```
 
-A handle is a function that takes in a response and returns a node or an array of nodes. The `this` context is the `ToMdast` instance. With `Options` the handles for each block type and rich text type can be customized. See [handles](src/handles.ts) for the default handles.
+A handle is a function that takes in a response and returns a node or an array of nodes. The `this` context is the `ToMdast` instance. With `Options` the handles for each block type and rich text type can be customized. See [handles](src/handle) for the default handles.
 
 The metadata of the page is obtained from the page properties, and can also be customized with handles.
 
