@@ -1,10 +1,10 @@
 import type { EquationRichTextItemResponse, MentionRichTextItemResponse, RichTextItemResponse, TextRichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
-import type { XXX } from "../index.ts"
+import type { ToMdast } from ".."
 
 import type { PhrasingContent } from "mdast"
 import { u } from "unist-builder"
 
-export async function text(this: XXX, genericResponse: RichTextItemResponse) {
+export async function text(this: ToMdast, genericResponse: RichTextItemResponse) {
     let response = genericResponse as TextRichTextItemResponse
     let text = await mention.call(this, response)
 

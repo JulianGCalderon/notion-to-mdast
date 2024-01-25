@@ -1,48 +1,14 @@
 # notion-to-mdast
 
-This project translates responses from the notion API into mdast (markdown
-abstract syntax tree)
+Notion's markdown export is buggy and lacks support for many features. This library aims to provide customizable alternative by using the official API to translate pages into a syntax tree, which can then be used to generate markdown or other formats.
 
-## Motivation
+An [integration](https://www.notion.so/my-integrations) must be created to use this library. You must also find the id of the target page, the script [search](./scripts/search.ts) can be used to find it.
 
-Notion's markdown export is buggy and not customizable. I decided to create my own markdown (mdast) export with with focus on extensibility while learning javascript/typescript. This project contains my first ever lines on these languages so proceed with caution.
+## Usage
 
-## API
+We must utilize `ToMdast` to convert the notion page to a syntax tree, and then compile it using the `unified` ecosystem.
 
-This library exposes the `ToMdast` class, which receives a notion client and
-provides utilities for converting pages (or blocks) into a syntax tree.
-
-```typescript
-new ToMdast(client: Client, options?: Options)
-```
-
-With options, the handles for notion types can be replaced
-
-```typescript
-export type Options = {
-    blockHandles?: Partial<BlockHandles>
-    richTextHandles?: Partial<RichTextHandles>
-}
-
-export type BlockHandles = Record<BlockObjectResponse['type'], BlockHandle>
-export type RichTextHandles = Record<RichTextItemResponse['type'], RichTextHandle>
-export type BlockHandle = (this: ToMdast, response: BlockObjectResponse) => Promise<Node | Node[]>
-export type RichTextHandle = (this: ToMdast, response: RichTextItemResponse) => Promise<Node>
-```
-
-Handles are functions which receive a `BlockObjectRespose` and return the
-translated node. See [handle](src/handle) for reference
-
-To convert a page, we can use:
-
-```typescript
-ToMdast.translatePage(pageId: string): Promise<Node>
-```
-
-## Example
-
-After the translation, the `unified` ecosystem can be used to transform/compile
-the syntax tree into the desired format
+The following code is a snippet of the [translate](./scripts/translate.ts) script.
 
 ```typescript
 const client = new Client({
@@ -63,26 +29,33 @@ const content = unified()
 console.log(content)
 ```
 
-## Script
+## API
 
-To install dependencies:
+### `new ToMdast(client: Client, options?: ToMdastOptions)`
 
-```bash
-bun install
+Creates a new `ToMdast` instance. `options` is used to customize the output
+
+### `ToMdast#translatePage(pageId: string): Promise<Root>`
+
+Translates a page into a syntax tree
+
+### `Options`
+
+Customize the output of the syntax tree
+
+```typescript
+export type Options = {
+    blockHandles?: Partial<BlockHandles>
+    richTextHandles?: Partial<RichTextHandles>
+}
+
+export type BlockHandles = Record<BlockObjectResponse['type'], BlockHandle>
+export type RichTextHandles = Record<RichTextItemResponse['type'], RichTextHandle>
+export type BlockHandle = (this: ToMdast, response: BlockObjectResponse) => Promise<Node | Node[]>
+export type RichTextHandle = (this: ToMdast, response: RichTextItemResponse) => Promise<Node>
 ```
 
-Before running the script, a `.env` file must be set up to configure both the API key and the target page id.
-
-```.env
-NOTION_API_KEY=*********
-PAGE_ID=********
-```
-
-To run:
-
-```bash
-bun run translate
-```
+A handle is a function that takes in a response and returns a node or an array of nodes. The `this` context is the `ToMdast` instance. With `Options` the handles for each block type and rich text type can be customized. See [handles](src/handles.ts) for the default handles.
 
 ## Roadmap
 
