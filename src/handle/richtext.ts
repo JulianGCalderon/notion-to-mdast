@@ -1,43 +1,46 @@
 import type { EquationRichTextItemResponse, MentionRichTextItemResponse, RichTextItemResponse, TextRichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
-import type { NotionToMdast } from "./notion-to-mdast.ts"
-import * as builder from "mdast-builder"
-import type { Node } from "mdast"
+import type { XXX } from "../index.ts"
 
-export async function text(this: NotionToMdast, genericResponse: RichTextItemResponse) {
+import type { PhrasingContent } from "mdast"
+import { u } from "unist-builder"
+
+export async function text(this: XXX, genericResponse: RichTextItemResponse) {
     let response = genericResponse as TextRichTextItemResponse
     let text = await mention.call(this, response)
 
     let link = response.text.link
-    if (!link) {
+    if (link) {
+        return u("link", { url: link.url }, [text])
+    } else {
         return text
     }
 
-    return builder.link(link.url, undefined, text)
 }
 
 export async function equation(genericResponse: RichTextItemResponse) {
     const response = genericResponse as EquationRichTextItemResponse
 
-    return builder.inlineMath(response.equation.expression)
+    return u("inlineMath", response.equation.expression)
 }
 
 export async function mention(genericResponse: RichTextItemResponse) {
     const response = genericResponse as MentionRichTextItemResponse
 
     if (response.annotations.code) {
-        return builder.inlineCode(response.plain_text)
+        return u("inlineCode", response.plain_text)
     }
 
-    let text = builder.text(response.plain_text) as Node
+    let text = u("text", response.plain_text) as PhrasingContent
     if (response.annotations.bold) {
-        text = builder.strong(text)
+        text = u("strong", [text])
     }
     if (response.annotations.italic) {
-        text = builder.emphasis(text)
+        text = u("emphasis", [text])
     }
     if (response.annotations.strikethrough) {
-        text = builder.strike(text)
+        text = u("delete", [text])
     }
 
     return text
 }
+

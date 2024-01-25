@@ -3,7 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "main": "bun run src/main.ts",
+    "translate": "bun run scripts/translate.ts",
     "search": "bun run scripts/search.ts"
   },
   "workspaces": ["packages/*"],
@@ -24,12 +24,14 @@
     "mdast-util-to-markdown": "^2.1.0",
     "mdast-util-to-string": "^4.0.0",
     "path": "^0.12.7",
+    "remark-directive": "^3.0.0",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "remark-stringify": "^11.0.0",
     "to-vfile": "^8.0.0",
     "unified": "^11.0.4",
+    "unist-builder": "^4.0.0",
     "unist-util-is": "^6.0.0",
     "unist-util-visit": "^5.0.0",
     "unist-util-visit-parents": "^6.0.1",
