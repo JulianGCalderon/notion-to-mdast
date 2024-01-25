@@ -1,18 +1,50 @@
-# notion-to-obsidian
+# notion-to-mdast
 
-This project is a WIP (work-in-progress), it should not be used yet.
+This project translates responses from the notion API into a mdast (markdown
+abstract syntax tree)
 
 ## Motivation
 
-Notion's markdown export is buggy. Not only it completely breaks bold and italic text, but it's result is not obsidian-compatible.
+Notion's markdown export is buggy and not customizable. I decided to create my own markdown (mdast) export with with focus on extensibility while learning javascript/typescript. This project contains my first ever lines on these languages so proceed with caution.
 
-I decided to create my own obsidian export with obsidian compatibility while learning javascript/typescript. This project contains my first ever lines on these languages so proceed with caution.
+## API
 
-I first attempted this project with Python and string manipulation, starting from notion's export and converting it to an obsidian compatible language, but I did not like the result. Instead, I will use Notion's API to convert the original pages to markdown.
+This library exposes the `ToMdast` class, which receives a notion client and
+provides utilities for converting pages (or blocks) into a syntax tree.
 
-## Usage
+```typescript
+ToMdast: new(client: Client, options?: Options)
+```
 
-After a week trying to setup the project for compatibility with ES and JS modules in Node, I decided to setup the project with Bun. It worked flawlessly
+With options, the handles for notion types can be replaced
+
+```typescript
+export type Options = {
+    blockHandles?: Partial<BlockHandles>
+    richTextHandles?: Partial<RichTextHandles>
+}
+
+export type BlockHandles = Record<BlockObjectResponse['type'], BlockHandle>
+export type RichTextHandles = Record<RichTextItemResponse['type'], RichTextHandle>
+export type BlockHandle = (this: ToMdast, response: BlockObjectResponse) => Promise<Node | Node[]>
+export type RichTextHandle = (this: ToMdast, response: RichTextItemResponse) => Promise<Node>
+```
+
+Handles are functions which receive a `BlockObjectRespose` and return the
+translated node.
+
+To convert a page, we can use:
+
+```typescript
+ToMdast: translatePage(pageId: string): Promise<Node>
+```
+
+After the translation, the `unified` ecosystem can be used to transform/compile
+the syntax tree into the desired format
+
+## Example
+
+## Script
 
 To install dependencies:
 
@@ -30,35 +62,32 @@ PAGE_ID=********
 To run:
 
 ```bash
-bun run main
+bun run translate
 ```
 
 ## Roadmap
 
-- [x] Single page to stdout
-    - [x] Paragraph
-    - [x] Mention
-    - [x] Headings
-    - [x] Code
-    - [x] Quote
-    - [x] Equation
-    - [x] Table
-    - [x] Callout (with ofm)
-    - [x] Toggle blocks (as list item)
-    - [x] Numbered list item
-    - [x] Bulleted list item
-    - [x] To do (with gfm)
-    - [x] Divider
-    - [x] Image
-    - [x] Video
-    - [x] PDF
-    - [x] File
-    - [x] Embed
-    - [x] Bookmark
-    - [x] Link Preview
-    - [x] Synced block (as container)
-    - [x] Column list and column (as container)
-    - [x] Child page
-- [x] Single page to file
-- [x] Nested pages support
-- [ ] Download assets
+- [x] Paragraph
+- [x] Mention
+- [x] Headings
+- [x] Code
+- [x] Quote
+- [x] Equation
+- [x] Table
+- [x] Callout (with ofm)
+- [x] Toggle blocks (as list item)
+- [x] Numbered list item
+- [x] Bulleted list item
+- [x] To do (with gfm)
+- [x] Divider
+- [x] Image
+- [x] Video
+- [x] PDF
+- [x] File
+- [x] Embed
+- [x] Bookmark
+- [x] Link Preview
+- [x] Synced block (as container)
+- [x] Column list and column (as container)
+- [x] Child page (as link)
+- [ ] Metadata
