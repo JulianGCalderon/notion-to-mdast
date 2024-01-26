@@ -4,6 +4,14 @@ Notion's markdown export is buggy and lacks support for many features. This libr
 
 An [integration](https://www.notion.so/my-integrations) must be created to use this library. You must also find the id of the target page, the script [search](./scripts/search.ts) can be used to find it.
 
+## Install
+
+To install, run:
+
+```bash
+npm install notion-to-mdast
+```
+
 ## Usage
 
 We must utilize `ToMdast` to convert the notion page to a syntax tree, and then compile it using the `unified` ecosystem.

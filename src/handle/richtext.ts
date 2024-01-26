@@ -1,5 +1,5 @@
-import type { EquationRichTextItemResponse, MentionRichTextItemResponse, RichTextItemResponse, TextRichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
-import type { ToMdast } from ".."
+import type { EquationRichTextItemResponse, MentionRichTextItemResponse, RichTextItemResponse, TextRichTextItemResponse } from "@notionhq/client/build/src/api-endpoints.js"
+import ToMdast from "../index.js"
 
 import type { PhrasingContent } from "mdast"
 import { u } from "unist-builder"

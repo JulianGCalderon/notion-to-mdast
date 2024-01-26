@@ -1,18 +1,18 @@
 import { type Client, iteratePaginatedAPI, isFullBlock, isFullPage } from "@notionhq/client"
-import type { BlockObjectResponse, PartialBlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
+import type { BlockObjectResponse, PartialBlockObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints.js"
 
 import type { Node, Yaml } from "mdast"
 import { u } from "unist-builder"
 
 import { unified } from "unified"
-import remarkListMerge from "./transformer/list-merge"
+import remarkListMerge from "./transformer/list-merge.js"
 
-import * as blockHandles from "./handle/block"
-import * as richTextHandles from "./handle/richtext"
-import * as propertyHandles from "./handle/property"
-import type { BlockHandles, Options, PropertyHandles, RichTextHandles } from "./types"
+import * as blockHandles from "./handle/block.js"
+import * as richTextHandles from "./handle/richtext.js"
+import * as propertyHandles from "./handle/property.js"
+import type { BlockHandles, Options, PropertyHandles, RichTextHandles } from "./types.js"
 
-export class ToMdast {
+export default class ToMdast {
     client: Client
     blockHandles: Partial<BlockHandles>
     richTextHandles: RichTextHandles

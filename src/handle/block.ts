@@ -1,8 +1,8 @@
-import type { BlockObjectResponse, CalloutBlockObjectResponse, ChildPageBlockObjectResponse, CodeBlockObjectResponse, EmbedBlockObjectResponse, EquationBlockObjectResponse, QuoteBlockObjectResponse, TableRowBlockObjectResponse, ToDoBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints"
-import type { ToMdast } from ".."
+import type { BlockObjectResponse, CalloutBlockObjectResponse, ChildPageBlockObjectResponse, CodeBlockObjectResponse, EmbedBlockObjectResponse, EquationBlockObjectResponse, QuoteBlockObjectResponse, TableRowBlockObjectResponse, ToDoBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints.js"
 
 import { u } from "unist-builder"
 import { toString } from "mdast-util-to-string"
+import ToMdast from "../index.js"
 
 export async function paragraph(this: ToMdast, response: BlockObjectResponse) {
     // @ts-ignore

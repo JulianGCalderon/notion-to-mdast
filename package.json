@@ -1,17 +1,14 @@
 {
-  "name": "notion-to-obsidian",
-  "module": "index.ts",
+  "name": "notion-to-mdast",
+  "version": "1.0.0",
   "type": "module",
+  "description": "Notion's markdown export is buggy and lacks support for many features. This library aims to provide customizable alternative by using the official API to translate pages into a syntax tree, which can then be used to generate markdown or other formats.",
   "scripts": {
-    "translate": "bun run scripts/translate.ts",
-    "search": "bun run scripts/search.ts"
+    "translate": "npx tsc && node scripts/translate.js",
+    "search": "npx tsc && node scripts/search.js"
   },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
+  "author": "Julian G. Calderon",
+  "license": "ISC",
   "dependencies": {
     "@notionhq/client": "^2.2.14",
     "@types/mdast": "^4.0.3",
@@ -28,8 +25,13 @@
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "remark-stringify": "^11.0.0",
+    "ts-node": "^10.9.2",
     "unified": "^11.0.4",
     "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
   }
 }

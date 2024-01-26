@@ -1,6 +1,6 @@
-import type { BlockObjectResponse, PageObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints"
+import type { BlockObjectResponse, PageObjectResponse, RichTextItemResponse } from "@notionhq/client/build/src/api-endpoints.js"
 import type { Node } from "mdast"
-import type { ToMdast } from "."
+import ToMdast from "./index.js"
 
 export type Options = {
     blockHandles?: Partial<BlockHandles>
